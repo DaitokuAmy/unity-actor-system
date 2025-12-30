@@ -1,0 +1,124 @@
+using System;
+using System.Collections.Generic;
+
+namespace UnityActorSystem {
+    /// <summary>
+    /// アクターステートマシン
+    /// </summary>
+    public sealed class ActorStateMachine<TBlackboard> : IActorStateMachine
+        where TBlackboard : class, IActorStateBlackboard, new() {
+        private readonly Dictionary<Type, ActorState<TBlackboard>> _stateMap = new();
+
+        private bool _disposed;
+        private Type _currentStateType;
+        private IActorState _currentState;
+
+        /// <summary>現在のステート</summary>
+        public ActorState<TBlackboard> CurrentState => (ActorState<TBlackboard>)_currentState;
+        /// <summary>所有主アクター</summary>
+        public Actor Owner { get; }
+        /// <summary>ブラックボード</summary>
+        public TBlackboard Blackboard { get; }
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="owner">所有主</param>
+        public ActorStateMachine(Actor owner) {
+            Owner = owner;
+            Blackboard = new();
+        }
+
+        /// <inheritdoc/>
+        void IDisposable.Dispose() {
+            if (_disposed) {
+                return;
+            }
+
+            _disposed = true;
+            ResetState();
+            _stateMap.Clear();
+        }
+
+        /// <inheritdoc/>
+        void IActorStateMachine.Update(IReadOnlyList<ActorCommand> commands, IReadOnlyList<ActorSignal> signals, float deltaTime) {
+            if (_currentState != null) {
+                _currentState.Update(commands, signals, deltaTime);
+            }
+        }
+
+        /// <summary>
+        /// ステートの変更
+        /// </summary>
+        /// <param name="type">変更するステートの型</param>
+        /// <param name="force">現在のステートタイプと同じ型だったとしても処理を行うか</param>
+        public void ChangeState(Type type, bool force = false) {
+            if (_disposed) {
+                return;
+            }
+
+            if (_currentStateType == type && !force) {
+                return;
+            }
+
+            // ステートチェック
+            if (!_stateMap.TryGetValue(type, out var nextState)) {
+                throw new ArgumentException($"State type is not found. type={type}");
+            }
+
+            // 終了処理
+            if (_currentState != null) {
+                var state = _currentState;
+                _currentState = null;
+                _currentStateType = null;
+                state.Exit();
+            }
+
+            // 開始処理
+            _currentState = nextState;
+            _currentStateType = type;
+            _currentState.Enter();
+        }
+
+        /// <summary>
+        /// カレントステートが無い状態にリセットする
+        /// </summary>
+        public void ResetState() {
+            // 終了処理
+            if (_currentState != null) {
+                var state = _currentState;
+                _currentState = null;
+                _currentStateType = null;
+                state.Exit();
+            }
+        }
+
+        /// <summary>
+        /// ステートの取得
+        /// </summary>
+        public T GetState<T>()
+            where T : class, IActorState {
+            if (!_stateMap.TryGetValue(typeof(T), out var state)) {
+                return null;
+            }
+
+            return state as T;
+        }
+        
+        /// <summary>
+        /// ステートリストの設定
+        /// </summary>
+        /// <param name="states">ステートリスト</param>
+        public void SetStates(params ActorState<TBlackboard>[] states) {
+            ResetState();
+            
+            _stateMap.Clear();
+            foreach (var state in states) {
+                var key = state.GetType();
+                if (_stateMap.TryAdd(key, state)) {
+                    state.Setup(this);
+                }
+            }
+        }
+    }
+}
