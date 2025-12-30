@@ -4,9 +4,9 @@ using UnityEngine.Pool;
 
 namespace Sample {
     /// <summary>
-    /// アクター用のバッファ基底
+    /// アクター用のバッファ
     /// </summary>
-    public abstract class ActorBuffer<TContent> : IDisposable
+    public sealed class ActorBuffer<TContent> : IDisposable
         where TContent : class, IActorBufferContent, new() {
         private readonly Dictionary<Type, ObjectPool<TContent>> _poolMap = new();
         private readonly List<TContent> _bufferContents = new();
@@ -24,7 +24,12 @@ namespace Sample {
 
             _disposed = true;
 
-            ClearBuffer();
+            foreach (var content in _bufferContents) {
+                var pool = _poolMap[content.GetType()];
+                pool.Release(content);
+            }
+
+            _bufferContents.Clear();
             
             foreach (var content in _gotContents) {
                 _poolMap[content.GetType()].Release(content);
@@ -40,9 +45,9 @@ namespace Sample {
         }
 
         /// <summary>
-        /// PoolからBufferContentを取得
+        /// BufferContentの生成(Pool管理)
         /// </summary>
-        protected T GetContentFromPool<T>()
+        public T CreateContent<T>()
             where T : TContent, new() {
             var type = typeof(T);
             if (!_poolMap.TryGetValue(type, out var pool)) {
@@ -63,18 +68,19 @@ namespace Sample {
         /// BufferContentの追加
         /// </summary>
         /// <param name="content">追加対象のContent</param>
-        protected void AddContent(TContent content) {
+        public void AddContent(TContent content) {
             _bufferContents.Add(content);
             _gotContents.Remove(content);
         }
 
         /// <summary>
-        /// Bufferのクリア
+        /// Bufferの中身を取得
         /// </summary>
-        protected void ClearBuffer() {
+        public void GetBufferedContents(List<TContent> contents) {
             foreach (var content in _bufferContents) {
                 var pool = _poolMap[content.GetType()];
                 pool.Release(content);
+                contents.Add(content);
             }
 
             _bufferContents.Clear();

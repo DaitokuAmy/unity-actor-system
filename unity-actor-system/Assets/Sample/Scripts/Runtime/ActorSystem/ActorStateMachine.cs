@@ -5,19 +5,15 @@ namespace Sample {
     /// <summary>
     /// アクターステートマシン
     /// </summary>
-    public sealed class ActorStateMachine : IActorInterface {
+    public sealed class ActorStateMachine : IDisposable {
         private readonly Dictionary<Type, ActorState> _stateMap = new();
 
         private bool _disposed;
-        private bool _activated;
-        private bool _attached;
         private Type _currentStateType;
         private IActorState _currentState;
-        
+
         /// <summary>現在のステート</summary>
         public ActorState CurrentState => (ActorState)_currentState;
-        /// <summary>有効状態か</summary>
-        private bool IsActive => !_disposed && _activated && _attached;
 
         /// <summary>
         /// コンストラクタ
@@ -35,52 +31,21 @@ namespace Sample {
             if (_disposed) {
                 return;
             }
-            
-            _stateMap.Clear();
+
             _disposed = true;
-        }
-
-        /// <inheritdoc/>
-        void IActorInterface.Activate() {
-            if (_activated) {
-                return;
-            }
-            
-            _activated = true;
-        }
-
-        /// <inheritdoc/>
-        void IActorInterface.Deactivate() {
-            if (!_activated) {
-                return;
-            }
-            
-            _activated = false;
-        }
-
-        /// <inheritdoc/>
-        void IActorInterface.Attached(Actor actor) {
-            if (_attached) {
-                return;
-            }
-            
-            _attached = true;
-        }
-
-        /// <inheritdoc/>
-        void IActorInterface.Detached() {
-            if (!_attached) {
-                return;
-            }
-            
             ResetState();
-            _attached = false;
+            _stateMap.Clear();
         }
 
-        /// <inheritdoc/>
-        void IActorInterface.Update(float deltaTime) {
+        /// <summary>
+        /// 更新処理
+        /// </summary>
+        /// <param name="commands">処理対象のコマンドリスト</param>
+        /// <param name="signals">処理対象のシグナルリスト</param>
+        /// <param name="deltaTime">変位時間</param>
+        public void Update(IReadOnlyList<ActorCommand> commands, IReadOnlyList<ActorSignal> signals, float deltaTime) {
             if (_currentState != null) {
-                _currentState.Update(deltaTime);
+                _currentState.Update(commands, signals, deltaTime);
             }
         }
 
@@ -89,10 +54,10 @@ namespace Sample {
         /// </summary>
         public void ChangeState<T>(bool force = false)
             where T : ActorState {
-            if (!IsActive) {
+            if (_disposed) {
                 return;
             }
-            
+
             var type = typeof(T);
             if (_currentStateType == type && !force) {
                 return;

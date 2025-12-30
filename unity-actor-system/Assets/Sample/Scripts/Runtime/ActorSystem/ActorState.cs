@@ -1,22 +1,6 @@
+using System.Collections.Generic;
+
 namespace Sample {
-    public interface IActorState {
-        /// <summary>
-        /// 開始処理
-        /// </summary>
-        void Enter();
-
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        /// <param name="deltaTime">変位時間</param>
-        void Update(float deltaTime);
-
-        /// <summary>
-        /// 終了処理
-        /// </summary>
-        void Exit();
-    }
-
     /// <summary>
     /// アクターステートマシン用のステート基底
     /// </summary>
@@ -25,7 +9,7 @@ namespace Sample {
         void IActorState.Enter() => Enter();
 
         /// <inheritdoc/>
-        void IActorState.Update(float deltaTime) => Update(deltaTime);
+        void IActorState.Update(IReadOnlyList<ActorCommand> commands, IReadOnlyList<ActorSignal> signals, float deltaTime) => Update(commands, signals, deltaTime);
 
         /// <inheritdoc/>
         void IActorState.Exit() => Exit();
@@ -33,17 +17,19 @@ namespace Sample {
         /// <summary>
         /// 開始処理
         /// </summary>
-        protected abstract void Enter();
+        protected virtual void Enter() { }
 
         /// <summary>
         /// 更新処理
         /// </summary>
+        /// <param name="commands">処理対象のコマンドリスト</param>
+        /// <param name="signals">処理対象のシグナルリスト</param>
         /// <param name="deltaTime">変位時間</param>
-        protected abstract void Update(float deltaTime);
+        protected virtual void Update(IReadOnlyList<ActorCommand> commands, IReadOnlyList<ActorSignal> signals, float deltaTime) { }
 
         /// <summary>
         /// 終了処理
         /// </summary>
-        protected abstract void Exit();
+        protected virtual void Exit() { }
     }
 }
