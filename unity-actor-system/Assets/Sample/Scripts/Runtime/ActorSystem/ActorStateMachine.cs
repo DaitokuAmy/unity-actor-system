@@ -6,6 +6,7 @@ namespace Sample {
     /// アクターステートマシン
     /// </summary>
     public sealed class ActorStateMachine : IDisposable {
+        private readonly Actor _owner;
         private readonly Dictionary<Type, ActorState> _stateMap = new();
 
         private bool _disposed;
@@ -18,11 +19,24 @@ namespace Sample {
         /// <summary>
         /// コンストラクタ
         /// </summary>
+        /// <param name="owner">所有主</param>
+        public ActorStateMachine(Actor owner) {
+            _owner = owner;
+        }
+
+        /// <summary>
+        /// ステートの設定
+        /// </summary>
         /// <param name="states">保持するステートリスト</param>
-        public ActorStateMachine(params ActorState[] states) {
+        public void SetStates(params ActorState[] states) {
+            ResetState();
+            
+            _stateMap.Clear();
             foreach (var state in states) {
                 var key = state.GetType();
-                _stateMap.TryAdd(key, state);
+                if (_stateMap.TryAdd(key, state)) {
+                    ((IActorState)state).Setup(_owner);
+                }
             }
         }
 
@@ -52,13 +66,11 @@ namespace Sample {
         /// <summary>
         /// ステートの変更
         /// </summary>
-        public void ChangeState<T>(bool force = false)
-            where T : ActorState {
+        public void ChangeState(Type type, bool force = false) {
             if (_disposed) {
                 return;
             }
 
-            var type = typeof(T);
             if (_currentStateType == type && !force) {
                 return;
             }

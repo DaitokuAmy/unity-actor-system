@@ -6,6 +6,12 @@ namespace Sample {
     /// </summary>
     public interface IActorState {
         /// <summary>
+        /// セットアップ
+        /// </summary>
+        /// <param name="owner">所有主</param>
+        void Setup(Actor owner);
+        
+        /// <summary>
         /// 開始処理
         /// </summary>
         void Enter();

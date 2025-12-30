@@ -5,6 +5,15 @@ namespace Sample {
     /// アクターステートマシン用のステート基底
     /// </summary>
     public abstract class ActorState : IActorState {
+        /// <summary>所有主アクター</summary>
+        protected Actor Owner { get; private set; }
+
+        /// <inheritdoc/>
+        void IActorState.Setup(Actor owner) {
+            Owner = owner;
+            Setup();
+        }
+
         /// <inheritdoc/>
         void IActorState.Enter() => Enter();
 
@@ -13,6 +22,11 @@ namespace Sample {
 
         /// <inheritdoc/>
         void IActorState.Exit() => Exit();
+
+        /// <summary>
+        /// セットアップ
+        /// </summary>
+        protected virtual void Setup() { }
 
         /// <summary>
         /// 開始処理
