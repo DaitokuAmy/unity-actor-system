@@ -8,26 +8,20 @@ namespace Sample.Presentation {
     /// </summary>
     public class CharacterView : MonoBehaviour, IActorView {
         private Vector2 _velocityXZ;
-        
+
         /// <inheritdoc/>
         void IDisposable.Dispose() {
-            if (gameObject != null) {
-                Destroy(gameObject);
-            }
+            Destroy(gameObject);
         }
 
         /// <inheritdoc/>
         void IActorInterface.Activate() {
-            if (gameObject != null) {
-                gameObject.SetActive(true);
-            }
+            gameObject.SetActive(true);
         }
 
         /// <inheritdoc/>
         void IActorInterface.Deactivate() {
-            if (gameObject != null) {
-                gameObject.SetActive(false);
-            }
+            gameObject.SetActive(false);
         }
 
         /// <inheritdoc/>

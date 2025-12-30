@@ -14,7 +14,7 @@ namespace Sample.Application {
             private CancellationTokenSource _cancellationTokenSource;
             
             /// <summary>Model参照</summary>
-            protected PlayerModel Model { get; private set; }
+            protected CharacterModel Model { get; private set; }
             /// <summary>Presenter参照</summary>
             protected ICharacterPresenter Presenter { get; private set; }
             /// <summary>ステートにいる間有効なキャンセルトークン</summary>

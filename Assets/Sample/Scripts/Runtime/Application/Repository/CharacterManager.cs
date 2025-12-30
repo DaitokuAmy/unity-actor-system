@@ -59,5 +59,26 @@ namespace Sample.Application {
             actor.SetActive(true);
             return actor;
         }
+
+        /// <summary>
+        /// エネミー生成
+        /// </summary>
+        public async UniTask<Actor> CreateEnemyAsync(int id, CancellationToken ct) {
+            var actor = _actorManager.CreateActor(id);
+            
+            var model = new EnemyModel();
+            actor.SetModel(model);
+            
+            await _actorFactory.CreateEnemyAsync(actor, model, ct);
+            
+            actor.SetupStateMachine(
+                typeof(CharacterStates.Idle),
+                new CharacterStates.Idle(),
+                new CharacterStates.Locomotion(),
+                new CharacterStates.Attack());
+            
+            actor.SetActive(true);
+            return actor;
+        }
     }
 }

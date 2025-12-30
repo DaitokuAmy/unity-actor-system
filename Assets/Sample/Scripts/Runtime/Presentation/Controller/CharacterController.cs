@@ -13,10 +13,14 @@ namespace Sample.Presentation {
         void IDisposable.Dispose() { }
 
         /// <inheritdoc/>
-        void IActorInterface.Activate() { }
+        void IActorInterface.Activate() {
+            Activate();
+        }
 
         /// <inheritdoc/>
-        void IActorInterface.Deactivate() { }
+        void IActorInterface.Deactivate() {
+            Deactivate();
+        }
 
         /// <inheritdoc/>
         void IActorInterface.Attached(Actor actor) {
@@ -34,10 +38,19 @@ namespace Sample.Presentation {
         }
 
         /// <summary>
+        /// アクティブ時処理
+        /// </summary>
+        protected virtual void Activate() {}
+
+        /// <summary>
+        /// 非アクティブ時処理
+        /// </summary>
+        protected virtual void Deactivate() {}
+
+        /// <summary>
         /// 更新処理
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
-        protected virtual void Update(float deltaTime) {
-        }
+        protected virtual void Update(float deltaTime) {}
     }
 }

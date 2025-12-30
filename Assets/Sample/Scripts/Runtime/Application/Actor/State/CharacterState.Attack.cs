@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using Sample.Domain;
 using UnityActorSystem;
 using UnityEngine;
 
@@ -42,8 +43,8 @@ namespace Sample.Application {
                 }
 
                 foreach (var command in commands) {
-                    if (command is CharacterCommands.Attack) {
-                        if (_canCombo && _index + 1 < Model.AttackComboMax) {
+                    if (command is CharacterCommands.Attack && Model is PlayerModel playerModel) {
+                        if (_canCombo && _index + 1 < playerModel.AttackComboMax) {
                             Blackboard.AttackIndex = _index + 1;
                             ChangeState<Attack>(true);
                             return;
