@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityActorSystem;
 using UnityEngine;
 
@@ -8,6 +10,8 @@ namespace Sample.Presentation {
     /// </summary>
     public class CharacterView : MonoBehaviour, IActorView<int> {
         private Vector2 _velocityXZ;
+        private MeshRenderer _renderer;
+        private Material _material;
 
         /// <inheritdoc/>
         void IDisposable.Dispose() {
@@ -46,7 +50,23 @@ namespace Sample.Presentation {
             _velocityXZ.y = z;
         }
 
+        /// <summary>
+        /// 攻撃再生
+        /// </summary>
+        public async UniTask PlayAttackAsync(CancellationToken ct) {
+            _velocityXZ = Vector2.zero;
+            _material.color = Color.red;
+            await using var handle = ct.Register(() => _material.color = Color.white);
+            await UniTask.WaitForSeconds(1.0f, cancellationToken: ct);
+            _material.color = Color.white;
+        }
+
         #region UnityEvent
+
+        private void Awake() {
+            _renderer = GetComponent<MeshRenderer>();
+            _material = _renderer.material;
+        }
 
         private void Update() { }
 

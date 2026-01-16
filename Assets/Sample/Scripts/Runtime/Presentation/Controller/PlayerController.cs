@@ -18,19 +18,19 @@ namespace Sample.Presentation {
 
             // 移動判定
             var moveVector = Vector2.zero;
-            if (Input.GetKey(KeyCode.LeftArrow)) {
+            if (Input.GetKey(KeyCode.A)) {
                 moveVector.x -= 1.0f;
             }
 
-            if (Input.GetKey(KeyCode.RightArrow)) {
+            if (Input.GetKey(KeyCode.D)) {
                 moveVector.x += 1.0f;
             }
 
-            if (Input.GetKey(KeyCode.DownArrow)) {
+            if (Input.GetKey(KeyCode.S)) {
                 moveVector.y -= 1.0f;
             }
 
-            if (Input.GetKey(KeyCode.UpArrow)) {
+            if (Input.GetKey(KeyCode.W)) {
                 moveVector.y += 1.0f;
             }
 

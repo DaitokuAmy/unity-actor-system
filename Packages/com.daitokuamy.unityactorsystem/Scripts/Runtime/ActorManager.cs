@@ -9,7 +9,7 @@ namespace UnityActorSystem {
     public sealed class ActorManager<TKey> : IDisposable {
         private readonly List<IActorRuntime<TKey>> _actorRuntimes = new();
         private readonly Dictionary<TKey, Actor<TKey>> _actorMap = new();
-        private ObjectPool<Actor<TKey>> _actorPool;
+        private readonly ObjectPool<Actor<TKey>> _actorPool;
 
         private bool _disposed;
 
@@ -48,6 +48,7 @@ namespace UnityActorSystem {
         /// <summary>
         /// アクターの生成
         /// </summary>
+        /// <param name="id">識別子</param>
         public Actor<TKey> CreateActor(TKey id) {
             if (_disposed) {
                 throw new ObjectDisposedException(nameof(ActorManager<TKey>));
@@ -68,6 +69,7 @@ namespace UnityActorSystem {
         /// <summary>
         /// アクターの削除
         /// </summary>
+        /// <param name="id">識別子</param>
         public void DeleteActor(TKey id) {
             if (!_actorMap.Remove(id, out var actor)) {
                 return;
@@ -77,6 +79,37 @@ namespace UnityActorSystem {
             _actorRuntimes.Remove(actor);
             actorRuntime.Terminate();
             _actorPool.Release(actor);
+        }
+
+        /// <summary>
+        /// アクターの削除
+        /// </summary>
+        /// <param name="actor">対象アクター</param>
+        public void DeleteActor(Actor<TKey> actor) {
+            if (actor == null) {
+                return;
+            }
+            
+            DeleteActor(actor.Id);
+        }
+
+        /// <summary>
+        /// アクターの取得
+        /// </summary>
+        /// <param name="id">識別子</param>
+        /// <param name="actor">見つかったアクター</param>
+        /// <returns>あればtrue, なければfalse</returns>
+        public bool TryGetActor(TKey id, out Actor<TKey> actor) {
+            return _actorMap.TryGetValue(id, out actor);
+        }
+
+        /// <summary>
+        /// アクターの存在チェック
+        /// </summary>
+        /// <param name="id">識別子</param>
+        /// <returns>あればtrue, なければfalse</returns>
+        public bool ContainsActor(TKey id) {
+            return _actorMap.ContainsKey(id);
         }
 
         /// <summary>

@@ -55,7 +55,7 @@ namespace Sample.Presentation {
 
         /// <inheritdoc/>
         UniTask ICharacterPresenter.PlayAttackActionAsync(int index, CancellationToken ct) {
-            return UniTask.CompletedTask;
+            return View.PlayAttackAsync(ct);
         }
     }
 }
