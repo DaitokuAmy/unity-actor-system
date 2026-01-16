@@ -6,7 +6,7 @@ namespace Sample.Presentation {
     /// <summary>
     /// キャラ見た目制御用ビュー
     /// </summary>
-    public class CharacterView : MonoBehaviour, IActorView {
+    public class CharacterView : MonoBehaviour, IActorView<int> {
         private Vector2 _velocityXZ;
 
         /// <inheritdoc/>
@@ -15,23 +15,23 @@ namespace Sample.Presentation {
         }
 
         /// <inheritdoc/>
-        void IActorInterface.Activate() {
+        void IActorInterface<int>.Activate() {
             gameObject.SetActive(true);
         }
 
         /// <inheritdoc/>
-        void IActorInterface.Deactivate() {
+        void IActorInterface<int>.Deactivate() {
             gameObject.SetActive(false);
         }
 
         /// <inheritdoc/>
-        void IActorInterface.Attached(Actor actor) { }
+        void IActorInterface<int>.Attached(Actor<int> actor) { }
 
         /// <inheritdoc/>
-        void IActorInterface.Detached() { }
+        void IActorInterface<int>.Detached() { }
 
         /// <inheritdoc/>
-        void IActorInterface.Update(float deltaTime) {
+        void IActorInterface<int>.Update(float deltaTime) {
             var deltaPos = new Vector3(_velocityXZ.x, 0.0f, _velocityXZ.y) * deltaTime;
             transform.position += deltaPos;
         }

@@ -12,7 +12,7 @@ namespace Sample.Lifecycle {
     /// </summary>
     public sealed class CharacterActorFactory : ICharacterActorFactory {
         /// <inheritdoc/>
-        UniTask ICharacterActorFactory.CreatePlayerAsync(Actor actor, IReadOnlyPlayerModel model, CancellationToken ct) {
+        UniTask ICharacterActorFactory.CreatePlayerAsync(Actor<int> actor, IReadOnlyPlayerModel model, CancellationToken ct) {
             var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
             var view = cube.AddComponent<CharacterView>();
             actor.SetView(view);
@@ -24,7 +24,7 @@ namespace Sample.Lifecycle {
         }
         
         /// <inheritdoc/>
-        UniTask ICharacterActorFactory.CreateEnemyAsync(Actor actor, IReadOnlyEnemyModel model, CancellationToken ct) {
+        UniTask ICharacterActorFactory.CreateEnemyAsync(Actor<int> actor, IReadOnlyEnemyModel model, CancellationToken ct) {
             var sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             var view = sphere.AddComponent<CharacterView>();
             actor.SetView(view);

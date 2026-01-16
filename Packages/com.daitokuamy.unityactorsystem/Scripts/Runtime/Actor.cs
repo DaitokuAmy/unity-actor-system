@@ -5,23 +5,26 @@ namespace UnityActorSystem {
     /// <summary>
     /// アクター本体
     /// </summary>
-    public sealed class Actor : IActorRuntime {
+    public sealed class Actor<TKey> : IActorRuntime<TKey> {
         private readonly ActorBuffer<ActorCommand> _commandBuffer = new();
         private readonly ActorBuffer<ActorSignal> _signalBuffer = new();
         private readonly List<ActorCommand> _workCommands = new();
         private readonly List<ActorSignal> _workSignals = new();
 
         private IActorStateMachine _stateMachine;
-        private IActorController _controller;
-        private IActorReceiver _receiver;
-        private IActorModel _model;
-        private IActorPresenter _presenter;
-        private IActorView _view;
-        private bool _active;
+        private IActorController<TKey> _controller;
+        private IActorReceiver<TKey> _receiver;
+        private IActorModel<TKey> _model;
+        private IActorPresenter<TKey> _presenter;
+        private IActorView<TKey> _view;
+        private bool _initialized;
         private bool _disposed;
+        private bool _active;
 
+        /// <summary>識別ID</summary>
+        public TKey Id { get; private set; }
         /// <summary>アクティブ状態</summary>
-        public bool IsActive => _active;
+        public bool IsActive => _initialized && !_disposed && _active;
 
         /// <summary>
         /// コンストラクタ
@@ -37,43 +40,99 @@ namespace UnityActorSystem {
 
             _disposed = true;
 
-            ResetActorInterface(ref _presenter);
             ResetActorInterface(ref _receiver);
-            ResetActorInterface(ref _controller);
             ResetActorInterface(ref _view);
+            ResetActorInterface(ref _presenter);
             ResetActorInterface(ref _model);
+            ResetActorInterface(ref _controller);
+            
+            _active = false;
         }
 
         /// <inheritdoc/>
-        void IActorRuntime.UpdatePreLogic(float deltaTime) {
-            if (!_active) {
+        void IActorRuntime<TKey>.Initialize(TKey id) {
+            if (_initialized) {
+                throw new InvalidOperationException("Already initialized.");
+            }
+            
+            _initialized = true;
+            
+            Id = id;
+        }
+
+        /// <inheritdoc/>
+        void IActorRuntime<TKey>.Terminate() {
+            if (!_initialized) {
+                throw new InvalidOperationException("Not initialized.");
+            }
+
+            _initialized = false;
+            
+            Id = default;
+            
+            ResetActorInterface(ref _receiver);
+            ResetActorInterface(ref _view);
+            ResetActorInterface(ref _presenter);
+            ResetActorInterface(ref _model);
+            ResetActorInterface(ref _controller);
+
+            _active = false;
+        }
+
+        /// <inheritdoc/>
+        void IActorRuntime<TKey>.UpdateController(float deltaTime) {
+            if (!IsActive) {
                 return;
             }
 
             _controller?.Update(deltaTime);
-            _receiver?.Update(deltaTime);
         }
 
         /// <inheritdoc/>
-        void IActorRuntime.UpdatePostLogic(float deltaTime) {
-            if (!_active) {
+        void IActorRuntime<TKey>.UpdateStateMachine(float deltaTime) {
+            if (!IsActive) {
                 return;
             }
 
             _commandBuffer.GetBufferedContents(_workCommands);
             _signalBuffer.GetBufferedContents(_workSignals);
             _stateMachine.Update(_workCommands, _workSignals, deltaTime);
+        }
+
+        /// <inheritdoc/>
+        void IActorRuntime<TKey>.UpdateModel(float deltaTime) {
+            if (!IsActive) {
+                return;
+            }
+
             _model?.Update(deltaTime);
         }
 
         /// <inheritdoc/>
-        void IActorRuntime.UpdateView(float deltaTime) {
-            if (!_active) {
+        void IActorRuntime<TKey>.UpdatePresenter(float deltaTime) {
+            if (!IsActive) {
                 return;
             }
 
             _presenter?.Update(deltaTime);
+        }
+
+        /// <inheritdoc/>
+        void IActorRuntime<TKey>.UpdateView(float deltaTime) {
+            if (!IsActive) {
+                return;
+            }
+
             _view?.Update(deltaTime);
+        }
+
+        /// <inheritdoc/>
+        void IActorRuntime<TKey>.UpdateReceiver(float deltaTime) {
+            if (!IsActive) {
+                return;
+            }
+
+            _receiver?.Update(deltaTime);
         }
 
         /// <summary>
@@ -120,7 +179,7 @@ namespace UnityActorSystem {
         /// アクティブ状態の設定
         /// </summary>
         public void SetActive(bool active) {
-            if (_active == active || _disposed) {
+            if (_active == active || !_initialized || _disposed) {
                 return;
             }
 
@@ -146,9 +205,9 @@ namespace UnityActorSystem {
         /// </summary>
         /// <param name="startStateType">開始ステートのタイプ</param>
         /// <param name="states">登録するステート一覧</param>
-        public void SetupStateMachine<TBlackboard>(Type startStateType, params ActorState<TBlackboard>[] states)
+        public void SetupStateMachine<TBlackboard>(Type startStateType, params ActorState<TKey, TBlackboard>[] states)
             where TBlackboard : class, IActorStateBlackboard, new() {
-            var stateMachine = new ActorStateMachine<TBlackboard>(this);
+            var stateMachine = new ActorStateMachine<TKey, TBlackboard>(this);
             stateMachine.SetStates(states);
             stateMachine.ChangeState(startStateType);
             _stateMachine = stateMachine;
@@ -157,35 +216,35 @@ namespace UnityActorSystem {
         /// <summary>
         /// Controllerの設定
         /// </summary>
-        public void SetController(IActorController controller, bool prevDispose = true) {
+        public void SetController(IActorController<TKey> controller, bool prevDispose = true) {
             SetActorInterface(controller, ref _controller, prevDispose);
         }
 
         /// <summary>
         /// Receiverの設定
         /// </summary>
-        public void SetReceiver(IActorReceiver receiver, bool prevDispose = true) {
+        public void SetReceiver(IActorReceiver<TKey> receiver, bool prevDispose = true) {
             SetActorInterface(receiver, ref _receiver, prevDispose);
         }
 
         /// <summary>
         /// Modelの設定
         /// </summary>
-        public void SetModel(IActorModel model, bool prevDispose = true) {
+        public void SetModel(IActorModel<TKey> model, bool prevDispose = true) {
             SetActorInterface(model, ref _model, prevDispose);
         }
 
         /// <summary>
         /// Presenterの設定
         /// </summary>
-        public void SetPresenter(IActorPresenter presenter, bool prevDispose = true) {
+        public void SetPresenter(IActorPresenter<TKey> presenter, bool prevDispose = true) {
             SetActorInterface(presenter, ref _presenter, prevDispose);
         }
 
         /// <summary>
         /// Viewの設定
         /// </summary>
-        public void SetView(IActorView view, bool prevDispose = true) {
+        public void SetView(IActorView<TKey> view, bool prevDispose = true) {
             SetActorInterface(view, ref _view, prevDispose);
         }
 
@@ -228,8 +287,8 @@ namespace UnityActorSystem {
         /// <param name="field">設定先のフィールド</param>
         /// <param name="prevDispose">元々あった物をDisposeするか</param>
         private void SetActorInterface<T>(T target, ref T field, bool prevDispose = true)
-            where T : class, IActorInterface {
-            if (_disposed) {
+            where T : class, IActorInterface<TKey> {
+            if (!_initialized || _disposed) {
                 return;
             }
 
@@ -248,7 +307,7 @@ namespace UnityActorSystem {
         /// IActorInterfaceの除外処理
         /// </summary>
         private void ResetActorInterface<T>(ref T field, bool dispose = true)
-            where T : class, IActorInterface {
+            where T : class, IActorInterface<TKey> {
             if (field == null) {
                 return;
             }

@@ -10,7 +10,7 @@ namespace Sample.Application {
         /// <summary>
         /// キャラ用ステート基底
         /// </summary>
-        public abstract class CharacterState : ActorState<CharacterStateBlackboard> {
+        public abstract class CharacterState : ActorState<int, CharacterStateBlackboard> {
             private CancellationTokenSource _cancellationTokenSource;
             
             /// <summary>Model参照</summary>

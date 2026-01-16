@@ -2,6 +2,6 @@ namespace UnityActorSystem {
     /// <summary>
     /// アクター見た目管理用のインターフェース
     /// </summary>
-    public interface IActorView : IActorInterface {
+    public interface IActorView<TKey> : IActorInterface<TKey> {
     }
 }

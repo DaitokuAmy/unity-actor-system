@@ -4,20 +4,46 @@ namespace UnityActorSystem {
     /// <summary>
     /// アクター更新用のインターフェース
     /// </summary>
-    internal interface IActorRuntime : IDisposable {
+    internal interface IActorRuntime<TKey> : IDisposable {
         /// <summary>
-        /// 前半ロジック更新
+        /// 初期化処理
         /// </summary>
-        void UpdatePreLogic(float deltaTime);
+        /// <param name="id">識別子</param>
+        void Initialize(TKey id);
+        
+        /// <summary>
+        /// 終了処理
+        /// </summary>
+        void Terminate();
+        
+        /// <summary>
+        /// コントローラー更新
+        /// </summary>
+        void UpdateController(float deltaTime);
 
         /// <summary>
-        /// 後半ロジック更新
+        /// ステートマシン更新
         /// </summary>
-        void UpdatePostLogic(float deltaTime);
+        void UpdateStateMachine(float deltaTime);
+
+        /// <summary>
+        /// モデル更新
+        /// </summary>
+        void UpdateModel(float deltaTime);
+
+        /// <summary>
+        /// プレゼンター更新
+        /// </summary>
+        void UpdatePresenter(float deltaTime);
 
         /// <summary>
         /// ビュー更新
         /// </summary>
         void UpdateView(float deltaTime);
+
+        /// <summary>
+        /// レシーバー更新
+        /// </summary>
+        void UpdateReceiver(float deltaTime);
     }
 }

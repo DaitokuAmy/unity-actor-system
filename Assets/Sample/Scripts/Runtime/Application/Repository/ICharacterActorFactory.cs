@@ -11,11 +11,11 @@ namespace Sample.Application {
         /// <summary>
         /// プレイヤー生成
         /// </summary>
-        UniTask CreatePlayerAsync(Actor actor, IReadOnlyPlayerModel model, CancellationToken ct);
+        UniTask CreatePlayerAsync(Actor<int> actor, IReadOnlyPlayerModel model, CancellationToken ct);
         
         /// <summary>
         /// エネミー生成
         /// </summary>
-        UniTask CreateEnemyAsync(Actor actor, IReadOnlyEnemyModel model, CancellationToken ct);
+        UniTask CreateEnemyAsync(Actor<int> actor, IReadOnlyEnemyModel model, CancellationToken ct);
     }
 }

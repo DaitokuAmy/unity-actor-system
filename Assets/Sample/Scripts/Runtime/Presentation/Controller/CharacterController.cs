@@ -5,35 +5,35 @@ namespace Sample.Presentation {
     /// <summary>
     /// キャラ操作用クラス基底
     /// </summary>
-    public abstract class CharacterController : IActorController {
+    public abstract class CharacterController : IActorController<int> {
         /// <summary>オーナーアクター</summary>
-        protected Actor Owner { get; private set; }
+        protected Actor<int> Owner { get; private set; }
 
         /// <inheritdoc/>
         void IDisposable.Dispose() { }
 
         /// <inheritdoc/>
-        void IActorInterface.Activate() {
+        void IActorInterface<int>.Activate() {
             Activate();
         }
 
         /// <inheritdoc/>
-        void IActorInterface.Deactivate() {
+        void IActorInterface<int>.Deactivate() {
             Deactivate();
         }
 
         /// <inheritdoc/>
-        void IActorInterface.Attached(Actor actor) {
+        void IActorInterface<int>.Attached(Actor<int> actor) {
             Owner = actor;
         }
 
         /// <inheritdoc/>
-        void IActorInterface.Detached() {
+        void IActorInterface<int>.Detached() {
             Owner = null;
         }
 
         /// <inheritdoc/>
-        void IActorInterface.Update(float deltaTime) {
+        void IActorInterface<int>.Update(float deltaTime) {
             Update(deltaTime);
         }
 

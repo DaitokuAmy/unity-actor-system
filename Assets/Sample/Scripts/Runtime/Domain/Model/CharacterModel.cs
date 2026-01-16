@@ -5,29 +5,29 @@ namespace Sample.Domain {
     /// <summary>
     /// キャラ用のドメインモデル
     /// </summary>
-    public abstract class CharacterModel : IActorModel {
+    public abstract class CharacterModel : IActorModel<int> {
         /// <inheritdoc/>
         void IDisposable.Dispose() {
         }
 
         /// <inheritdoc/>
-        void IActorInterface.Activate() {
+        void IActorInterface<int>.Activate() {
         }
 
         /// <inheritdoc/>
-        void IActorInterface.Deactivate() {
+        void IActorInterface<int>.Deactivate() {
         }
 
         /// <inheritdoc/>
-        void IActorInterface.Attached(Actor actor) {
+        void IActorInterface<int>.Attached(Actor<int> actor) {
         }
 
         /// <inheritdoc/>
-        void IActorInterface.Detached() {
+        void IActorInterface<int>.Detached() {
         }
 
         /// <inheritdoc/>
-        void IActorInterface.Update(float deltaTime) {
+        void IActorInterface<int>.Update(float deltaTime) {
         }
     }
 }

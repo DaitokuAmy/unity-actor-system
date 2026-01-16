@@ -8,9 +8,9 @@ namespace Sample.Presentation {
     /// <summary>
     /// キャラ見た目反映用クラス
     /// </summary>
-    public class CharacterPresenter : ICharacterPresenter, IActorPresenter {
+    public class CharacterPresenter : ICharacterPresenter, IActorPresenter<int> {
         /// <summary>オーナーアクター</summary>
-        protected Actor Owner { get; private set; }
+        protected Actor<int> Owner { get; private set; }
         /// <summary>制御用のビュー</summary>
         protected CharacterView View { get; }
 
@@ -25,23 +25,23 @@ namespace Sample.Presentation {
         void IDisposable.Dispose() { }
 
         /// <inheritdoc/>
-        void IActorInterface.Activate() { }
+        void IActorInterface<int>.Activate() { }
 
         /// <inheritdoc/>
-        void IActorInterface.Deactivate() { }
+        void IActorInterface<int>.Deactivate() { }
 
         /// <inheritdoc/>
-        void IActorInterface.Attached(Actor actor) {
+        void IActorInterface<int>.Attached(Actor<int> actor) {
             Owner = actor;
         }
 
         /// <inheritdoc/>
-        void IActorInterface.Detached() {
+        void IActorInterface<int>.Detached() {
             Owner = null;
         }
 
         /// <inheritdoc/>
-        void IActorInterface.Update(float deltaTime) { }
+        void IActorInterface<int>.Update(float deltaTime) { }
 
         /// <inheritdoc/>
         void ICharacterPresenter.ChangeIdle() {

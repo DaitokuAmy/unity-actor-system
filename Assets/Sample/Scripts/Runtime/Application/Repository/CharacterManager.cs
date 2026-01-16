@@ -34,15 +34,18 @@ namespace Sample.Application {
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
         public void Update(float deltaTime) {
-            _actorManager.UpdatePreLogic(deltaTime);
-            _actorManager.UpdatePostLogic(deltaTime);
+            _actorManager.UpdateController(deltaTime);
+            _actorManager.UpdateStateMachine(deltaTime);
+            _actorManager.UpdateModel(deltaTime);
+            _actorManager.UpdatePresenter(deltaTime);
             _actorManager.UpdateView(deltaTime);
+            _actorManager.UpdateReceiver(deltaTime);
         }
 
         /// <summary>
         /// プレイヤー生成
         /// </summary>
-        public async UniTask<Actor> CreatePlayerAsync(int id, CancellationToken ct) {
+        public async UniTask<Actor<int>> CreatePlayerAsync(int id, CancellationToken ct) {
             var actor = _actorManager.CreateActor(id);
             
             var model = new PlayerModel();
@@ -63,7 +66,7 @@ namespace Sample.Application {
         /// <summary>
         /// エネミー生成
         /// </summary>
-        public async UniTask<Actor> CreateEnemyAsync(int id, CancellationToken ct) {
+        public async UniTask<Actor<int>> CreateEnemyAsync(int id, CancellationToken ct) {
             var actor = _actorManager.CreateActor(id);
             
             var model = new EnemyModel();

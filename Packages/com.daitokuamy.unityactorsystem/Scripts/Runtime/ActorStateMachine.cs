@@ -5,18 +5,18 @@ namespace UnityActorSystem {
     /// <summary>
     /// アクターステートマシン
     /// </summary>
-    public sealed class ActorStateMachine<TBlackboard> : IActorStateMachine
+    public sealed class ActorStateMachine<TKey, TBlackboard> : IActorStateMachine
         where TBlackboard : class, IActorStateBlackboard, new() {
-        private readonly Dictionary<Type, ActorState<TBlackboard>> _stateMap = new();
+        private readonly Dictionary<Type, ActorState<TKey, TBlackboard>> _stateMap = new();
 
         private bool _disposed;
         private Type _currentStateType;
         private IActorState _currentState;
 
         /// <summary>現在のステート</summary>
-        public ActorState<TBlackboard> CurrentState => (ActorState<TBlackboard>)_currentState;
+        public ActorState<TKey, TBlackboard> CurrentState => (ActorState<TKey, TBlackboard>)_currentState;
         /// <summary>所有主アクター</summary>
-        public Actor Owner { get; }
+        public Actor<TKey> Owner { get; }
         /// <summary>ブラックボード</summary>
         public TBlackboard Blackboard { get; }
 
@@ -24,7 +24,7 @@ namespace UnityActorSystem {
         /// コンストラクタ
         /// </summary>
         /// <param name="owner">所有主</param>
-        public ActorStateMachine(Actor owner) {
+        public ActorStateMachine(Actor<TKey> owner) {
             Owner = owner;
             Blackboard = new();
         }
@@ -109,7 +109,7 @@ namespace UnityActorSystem {
         /// ステートリストの設定
         /// </summary>
         /// <param name="states">ステートリスト</param>
-        public void SetStates(params ActorState<TBlackboard>[] states) {
+        public void SetStates(params ActorState<TKey, TBlackboard>[] states) {
             ResetState();
             
             _stateMap.Clear();

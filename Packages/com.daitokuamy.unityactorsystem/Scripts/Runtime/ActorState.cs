@@ -5,12 +5,12 @@ namespace UnityActorSystem {
     /// <summary>
     /// アクターステートマシン用のステート基底
     /// </summary>
-    public abstract class ActorState<TBlackboard> : IActorState
+    public abstract class ActorState<TKey, TBlackboard> : IActorState
         where TBlackboard : class, IActorStateBlackboard, new() {
-        private ActorStateMachine<TBlackboard> _stateMachine;
+        private ActorStateMachine<TKey, TBlackboard> _stateMachine;
 
         /// <summary>所有主アクター</summary>
-        protected Actor Owner => _stateMachine?.Owner;
+        protected Actor<TKey> Owner => _stateMachine?.Owner;
         /// <summary>ブラックボード</summary>
         protected TBlackboard Blackboard => _stateMachine?.Blackboard;
 
@@ -27,7 +27,7 @@ namespace UnityActorSystem {
         /// セットアップ処理
         /// </summary>
         /// <param name="stateMachine">所有主ステートマシン</param>
-        internal void Setup(ActorStateMachine<TBlackboard> stateMachine) {
+        internal void Setup(ActorStateMachine<TKey, TBlackboard> stateMachine) {
             _stateMachine = stateMachine;
             Setup();
         }
@@ -60,7 +60,7 @@ namespace UnityActorSystem {
         /// </summary>
         /// <param name="force">タイプに変化がなくても変更処理を行うか</param>
         protected void ChangeState<T>(bool force = false)
-            where T : ActorState<TBlackboard> {
+            where T : ActorState<TKey, TBlackboard> {
             if (_stateMachine == null) {
                 throw new InvalidOperationException("State Machine is not set.");
             }
