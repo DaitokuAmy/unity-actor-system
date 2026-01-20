@@ -5,7 +5,7 @@ namespace Sample.Presentation {
     /// <summary>
     /// エネミーキャラ操作用クラス
     /// </summary>
-    public class EnemyController : CharacterController {
+    public class AICharacterController : CharacterController {
         private float _thinkTimer = 0.0f;
         private Vector2 _moveVector;
 

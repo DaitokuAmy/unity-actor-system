@@ -1,11 +1,15 @@
 using System;
+using Sample.Core;
 using UnityActorSystem;
 
 namespace Sample.Domain {
     /// <summary>
     /// キャラ用のドメインモデル
     /// </summary>
-    public abstract class CharacterModel : IActorModel<int> {
+    public abstract class CharacterModel : IActorModel<int>, IReadOnlyCharacterModel {
+        /// <inheritdoc/>
+        public ICharacterMaster Master { get; private set; }
+        
         /// <inheritdoc/>
         void IDisposable.Dispose() {
         }
@@ -28,6 +32,13 @@ namespace Sample.Domain {
 
         /// <inheritdoc/>
         void IActorInterface<int>.Update(float deltaTime) {
+        }
+        
+        /// <summary>
+        /// マスターの設定
+        /// </summary>
+        public void SetMaster(ICharacterMaster master) {
+            Master = master;
         }
     }
 }

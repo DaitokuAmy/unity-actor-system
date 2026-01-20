@@ -12,13 +12,13 @@ namespace Sample.Presentation {
         /// <summary>オーナーアクター</summary>
         protected Actor<int> Owner { get; private set; }
         /// <summary>制御用のビュー</summary>
-        protected CharacterView View { get; }
+        protected CharacterActorView ActorView { get; }
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public CharacterPresenter(CharacterView view) {
-            View = view;
+        public CharacterPresenter(CharacterActorView actorView) {
+            ActorView = actorView;
         }
 
         /// <inheritdoc/>
@@ -45,17 +45,17 @@ namespace Sample.Presentation {
 
         /// <inheritdoc/>
         void ICharacterPresenter.ChangeIdle() {
-            View.SetVelocity(0.0f, 0.0f);
+            ActorView.SetVelocity(0.0f, 0.0f);
         }
 
         /// <inheritdoc/>
         void ICharacterPresenter.Move(float x, float y) {
-            View.SetVelocity(x, y);
+            ActorView.SetVelocity(x, y);
         }
 
         /// <inheritdoc/>
         UniTask ICharacterPresenter.PlayAttackActionAsync(int index, CancellationToken ct) {
-            return View.PlayAttackAsync(ct);
+            return ActorView.PlayAttackAsync(ct);
         }
     }
 }

@@ -1,0 +1,17 @@
+{
+    "name": "SampleEngine.Runtime",
+    "rootNamespace": "",
+    "references": [
+        "GUID:f43ef08c592fd334da2363800337e3e2",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

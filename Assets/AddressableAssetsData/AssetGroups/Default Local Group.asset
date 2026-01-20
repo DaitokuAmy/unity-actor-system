@@ -1,0 +1,138 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Default Local Group
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Default Local Group
+  m_GUID: b6c9c40723b641c4d85835483a531113
+  m_SerializeEntries:
+  - m_GUID: 0c9bb2bb81ee14b49ab1b9f4ab342ccc
+    m_Address: Assets/SampleAssets/Motion/Human/hum001/anim_hum001_running_backward_lp.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 130fdf1eb1169c748bdf942385834b32
+    m_Address: Assets/SampleAssets/Motion/Human/hum001/anim_hum001_standard_run_lp.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1b5da593b4be42a47af06828f0f7239f
+    m_Address: Assets/Sample/Gameplay/Table/dat_enemy_table.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 367070070632b6645b6dd61ce78e2835
+    m_Address: Assets/SampleAssets/Motion/Human/hum001/anim_hum001_right_strafe_walking_lp.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3756fb7841367ba4085f43f7621e032e
+    m_Address: Assets/SampleAssets/Motion/Human/hum001/anim_hum001_idle_lp.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3c3afc4a8d080124a835194e6846a2f2
+    m_Address: Assets/SampleAssets/Motion/Human/hum001/anim_hum001_left_strafe_lp.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4fabb8f059bfa7f4195f9feb7563dc10
+    m_Address: Assets/SampleAssets/Motion/Human/hum001/anim_hum001_right_turn_90.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5474a1fd6eb4d5a40b6ce5be2876a7f8
+    m_Address: Assets/SampleAssets/Motion/Human/hum001/anim_hum001_sword_and_shield_jump.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5832e11797321bf4899da456166de77f
+    m_Address: Assets/SampleAssets/Actor/Character/ch001/Data/dat_act_ch001_00.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5c4873398006c574e81bbf10e8d6f0a0
+    m_Address: Assets/SampleAssets/Motion/Human/hum001/anim_hum001_walking_backwards_lp.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 84dcdac913f277d4e82d54c974993233
+    m_Address: Assets/SampleAssets/Motion/Human/hum001/anim_hum001_right_strafe_lp.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 874848c9e62835d4d88eafa7bcae139c
+    m_Address: Assets/SampleAssets/Motion/Human/hum001/anim_hum001_falling_to_landing.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8b2b4495a1b3c3247ab2379216588c22
+    m_Address: Assets/SampleAssets/Motion/Human/hum001/anim_hum001_flying_kick.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9172444f06386364bad9f7db683c4f2e
+    m_Address: Assets/SampleAssets/Motion/Human/hum001/anim_hum001_sword_and_shield_attack.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9256e8de5a9e3cd4399c0c1939a320d1
+    m_Address: Assets/SampleAssets/Motion/Human/hum001/anim_hum001_left_turn_90.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9dfc8f6f68033dd4f9bc40b2fcc0f8a3
+    m_Address: Assets/SampleAssets/Motion/Human/hum001/anim_hum001_sword_and_shield_slash.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: aed991599f179914aa9dce3537eca58f
+    m_Address: Assets/Sample/Gameplay/Table/dat_player_table.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cc5087570c176a445b02eaf21c8f97d2
+    m_Address: Assets/SampleAssets/Motion/Human/hum001/anim_hum001_walking_lp.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cdce0448a0bed2148b7b3cb695b2edfa
+    m_Address: Assets/SampleAssets/Motion/Human/hum001/anim_hum001_jump.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cffda1aef9794214f95d877883e0106e
+    m_Address: Assets/SampleAssets/Motion/Human/hum001/anim_hum001_left_strafe_walking_lp.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d7c9803afac7ae14c8ac4af857bcc309
+    m_Address: Assets/SampleAssets/Actor/Character/ch001/Meshes/mdl_act_ch001_00.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e9bfbb501ea981a4dbac54f6a62c8051
+    m_Address: Assets/SampleAssets/Actor/Character/ch001/Prefabs/pfb_act_ch001_00.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: fce8b19bab8d20f4d9dc3894c7543951
+    m_Address: Assets/SampleAssets/Motion/Human/hum001/anim_hum001_falling_idle_lp.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: d2305b1b890fbaa41b6240fa84f51425, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: a02ed84bf222e86418e1833b7988fa33, type: 2}
+    - {fileID: 11400000, guid: a6f93726702bd3346807d147356c3661, type: 2}

@@ -5,6 +5,7 @@
     "com.daitokuamy.actionsequencer": "https://github.com/DaitokuAmy/action-sequencer.git?path=/Packages/com.daitokuamy.actionsequencer",
     "com.daitokuamy.gameaibehaviour": "https://github.com/DaitokuAmy/game-ai-behaviour.git?path=/Packages/com.daitokuamy.gameaibehaviour",
     "com.daitokuamy.unityrenametool": "https://github.com/DaitokuAmy/unity-rename-tool.git?path=/Packages/com.daitokuamy.unityrenametool",
+    "com.unity.addressables": "2.7.6",
     "com.unity.ai.navigation": "2.0.9",
     "com.unity.collab-proxy": "2.9.3",
     "com.unity.ide.rider": "3.0.38",

@@ -8,6 +8,8 @@ namespace Sample.Application {
     /// </summary>
     public class GameSession {
         [Inject]
+        private ITableAssetStore _tableAssetStore;
+        [Inject]
         private CharacterManager _characterManager;
 
         private bool _started;
@@ -19,20 +21,23 @@ namespace Sample.Application {
         /// <summary>
         /// 開始処理
         /// </summary>
-        public void Start() {
+        public async UniTask StartAsync(CancellationToken ct) {
             if (_started) {
                 return;
             }
 
             _started = true;
             _cancellationTokenSource = new();
+            
+            // マスター読み込み
+            await _tableAssetStore.LoadTablesAsync(ct);
 
             // キャラ生成
             _characterManager.CreatePlayerAsync(1, CancellationToken).Forget();
 
             // エネミー生成
             for (var i = 0; i < 4; i++) {
-                _characterManager.CreateEnemyAsync(10 + i, CancellationToken).Forget();
+                _characterManager.CreateEnemyAsync(1, CancellationToken).Forget();
             }
         }
 

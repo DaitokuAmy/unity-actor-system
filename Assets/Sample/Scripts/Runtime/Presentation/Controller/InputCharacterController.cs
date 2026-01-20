@@ -5,7 +5,7 @@ namespace Sample.Presentation {
     /// <summary>
     /// プレイヤーキャラ操作用クラス
     /// </summary>
-    public class PlayerController : CharacterController {
+    public class InputCharacterController : CharacterController {
         /// <inheritdoc/>
         protected override void Update(float deltaTime) {
             base.Update(deltaTime);

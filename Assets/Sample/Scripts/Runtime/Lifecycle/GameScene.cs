@@ -1,4 +1,7 @@
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using Sample.Application;
+using Sample.Infrastructure;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -9,12 +12,15 @@ namespace Sample.Lifecycle {
     /// </summary>
     [DefaultExecutionOrder(-1)]
     public class GameScene : LifetimeScope {
+        [SerializeField]
+        private Transform _characterRoot;
+
         private GameSession _session;
-        
+
         /// <inheritdoc/>
         protected override void Awake() {
             base.Awake();
-            
+
             _session = new GameSession();
             Container.Inject(_session);
         }
@@ -23,17 +29,23 @@ namespace Sample.Lifecycle {
         protected override void Configure(IContainerBuilder builder) {
             base.Configure(builder);
 
+            builder.Register<ITableAssetStore, TableAssetStore>(Lifetime.Singleton);
+            builder.Register<ICharacterAssetStore, CharacterAssetStore>(Lifetime.Singleton);
             builder.Register<CharacterManager>(Lifetime.Singleton);
-            builder.Register<ICharacterActorFactory, CharacterActorFactory>(Lifetime.Singleton);
+            builder.Register<ICharacterActorFactory>(resolver => {
+                var factory = new CharacterActorFactory(_characterRoot);
+                resolver.Inject(factory);
+                return factory;
+            }, Lifetime.Singleton);
         }
 
         /// <summary>
         /// アクティブ時処理
         /// </summary>
         private void OnEnable() {
-            _session.Start();
+            _session.StartAsync(CancellationToken.None).Forget();
         }
-        
+
         /// <summary>
         /// 非アクティブ時処理
         /// </summary>
