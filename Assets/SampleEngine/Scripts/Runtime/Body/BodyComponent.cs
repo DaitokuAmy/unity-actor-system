@@ -6,29 +6,25 @@ namespace SampleEngine {
     /// </summary>
     public abstract class BodyComponent : MonoBehaviour, IBodyComponentRuntime {
         /// <inheritdoc/>
-        // ReSharper disable once Unity.IncorrectMethodSignature
-        void IBodyComponentRuntime.Update(float deltaTime) {
-            Update(deltaTime);
+        void IBodyComponentRuntime.Tick(float deltaTime) {
+            Tick(deltaTime);
         }
         
         /// <inheritdoc/>
-        // ReSharper disable once Unity.IncorrectMethodSignature
-        void IBodyComponentRuntime.LateUpdate(float deltaTime) {
-            LateUpdate(deltaTime);
+        void IBodyComponentRuntime.PostTick(float deltaTime) {
+            PostTick(deltaTime);
         }
 
         /// <summary>
         /// 更新処理
         /// </summary>
-        // ReSharper disable once Unity.IncorrectMethodSignature
-        protected virtual void Update(float deltaTime) {
+        protected virtual void Tick(float deltaTime) {
         }
 
         /// <summary>
         /// 後更新処理
         /// </summary>
-        // ReSharper disable once Unity.IncorrectMethodSignature
-        protected virtual void LateUpdate(float deltaTime) {
+        protected virtual void PostTick(float deltaTime) {
         }
     }
 }

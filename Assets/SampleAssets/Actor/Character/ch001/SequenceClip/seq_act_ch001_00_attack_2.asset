@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8152536216155757503
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f3dc1b502acd48ad9608fc38cadbbcb, type: 3}
+  m_Name: SequenceTrack
+  m_EditorClassIdentifier: ActionSequencer::ActionSequencer.SequenceTrack
+  label: Track
+  sequenceEvents:
+  - {fileID: -2037528048688523486}
+--- !u!114 &-2037528048688523486
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0acad98900dbd5a47a3452d6e1046448, type: 3}
+  m_Name: CombableRangeSequenceEvent
+  m_EditorClassIdentifier: SampleEngine.Runtime::SampleEngine.CombableRangeSequenceEvent
+  label: "\u30B3\u30F3\u30DC\u53EF\u80FD"
+  active: 1
+  enterTime: 0.21666667
+  exitTime: 0.71666664
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ec08f2e03b1d49a8aa03fbf2f4ddcce, type: 3}
+  m_Name: seq_act_ch001_00_attack_2
+  m_EditorClassIdentifier: ActionSequencer::ActionSequencer.SequenceClip
+  tracks:
+  - {fileID: -8152536216155757503}
+  frameRate: 60
+  filterData: {fileID: 0}
+  includeClips: []

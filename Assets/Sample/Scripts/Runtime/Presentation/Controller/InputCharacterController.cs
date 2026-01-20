@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Sample.Presentation {
     /// <summary>
-    /// プレイヤーキャラ操作用クラス
+    /// 入力によるキャラ操作クラス
     /// </summary>
     public class InputCharacterController : CharacterController {
         /// <inheritdoc/>
@@ -11,8 +11,14 @@ namespace Sample.Presentation {
             base.Update(deltaTime);
             
             // 攻撃判定
-            if (Input.GetKeyDown(KeyCode.Space)) {
+            if (Input.GetMouseButtonDown(0)) {
                 var command = Owner.CreateCommand<CharacterCommands.Attack>();
+                Owner.AddCommand(command);
+            }
+            
+            // ジャンプ判定
+            if (Input.GetKeyDown(KeyCode.Space)) {
+                var command = Owner.CreateCommand<CharacterCommands.Jump>();
                 Owner.AddCommand(command);
             }
 

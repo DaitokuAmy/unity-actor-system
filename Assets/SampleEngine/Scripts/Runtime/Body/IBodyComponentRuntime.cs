@@ -6,11 +6,11 @@ namespace SampleEngine {
         /// <summary>
         /// 更新
         /// </summary>
-        void Update(float deltaTime);
+        void Tick(float deltaTime);
 
         /// <summary>
         /// 後更新
         /// </summary>
-        void LateUpdate(float deltaTime);
+        void PostTick(float deltaTime);
     }
 }

@@ -17,5 +17,15 @@ namespace Sample.Application {
         /// エネミー生成
         /// </summary>
         UniTask CreateEnemyAsync(Actor<int> actor, IReadOnlyEnemyModel model, CancellationToken ct);
+
+        /// <summary>
+        /// プレイヤー削除
+        /// </summary>
+        void DestroyPlayer(Actor<int> actor, IReadOnlyPlayerModel model);
+        
+        /// <summary>
+        /// エネミー削除
+        /// </summary>
+        void DestroyEnemy(Actor<int> actor, IReadOnlyEnemyModel model);
     }
 }

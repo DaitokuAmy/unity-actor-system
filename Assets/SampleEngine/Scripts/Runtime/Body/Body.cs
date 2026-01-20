@@ -69,7 +69,7 @@ namespace SampleEngine {
         /// </summary>
         public void Update(float deltaTime) {
             foreach (var runtime in _componentRuntimes) {
-                runtime.Update(deltaTime);
+                runtime.Tick(deltaTime);
             }
         }
 
@@ -78,7 +78,7 @@ namespace SampleEngine {
         /// </summary>
         public void LateUpdate(float deltaTime) {
             foreach (var runtime in _componentRuntimes) {
-                runtime.LateUpdate(deltaTime);
+                runtime.PostTick(deltaTime);
             }
         }
 

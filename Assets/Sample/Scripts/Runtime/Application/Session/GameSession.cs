@@ -1,5 +1,6 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using UnityActorSystem;
 using VContainer;
 
 namespace Sample.Application {
@@ -7,6 +8,8 @@ namespace Sample.Application {
     /// ゲーム用セッション
     /// </summary>
     public class GameSession {
+        [Inject]
+        private ActorManager<int> _actorManager;
         [Inject]
         private ITableAssetStore _tableAssetStore;
         [Inject]
@@ -28,7 +31,7 @@ namespace Sample.Application {
 
             _started = true;
             _cancellationTokenSource = new();
-            
+
             // マスター読み込み
             await _tableAssetStore.LoadTablesAsync(ct);
 
@@ -65,7 +68,12 @@ namespace Sample.Application {
                 return;
             }
 
-            _characterManager.Update(deltaTime);
+            _actorManager.UpdateController(deltaTime);
+            _actorManager.UpdateStateMachine(deltaTime);
+            _actorManager.UpdateModel(deltaTime);
+            _actorManager.UpdatePresenter(deltaTime);
+            _actorManager.UpdateView(deltaTime);
+            _actorManager.UpdateReceiver(deltaTime);
         }
     }
 }

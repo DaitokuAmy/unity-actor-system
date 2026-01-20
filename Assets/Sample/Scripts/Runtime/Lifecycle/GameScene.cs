@@ -1,7 +1,9 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Sample.Application;
 using Sample.Infrastructure;
+using UnityActorSystem;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -16,6 +18,7 @@ namespace Sample.Lifecycle {
         private Transform _characterRoot;
 
         private GameSession _session;
+        private BodyScheduler _bodyScheduler;
 
         /// <inheritdoc/>
         protected override void Awake() {
@@ -30,12 +33,23 @@ namespace Sample.Lifecycle {
             base.Configure(builder);
 
             builder.Register<ITableAssetStore, TableAssetStore>(Lifetime.Singleton);
+            builder.Register<ICameraAssetStore, CameraAssetStore>(Lifetime.Singleton);
             builder.Register<ICharacterAssetStore, CharacterAssetStore>(Lifetime.Singleton);
+            builder.Register(_ => {
+                var manager = new ActorManager<int>();
+                return manager;
+            },Lifetime.Singleton);
             builder.Register<CharacterManager>(Lifetime.Singleton);
+            builder.Register<CameraManager>(Lifetime.Singleton);
             builder.Register<ICharacterActorFactory>(resolver => {
                 var factory = new CharacterActorFactory(_characterRoot);
                 resolver.Inject(factory);
                 return factory;
+            }, Lifetime.Singleton);
+            builder.Register(resolver => {
+                _bodyScheduler = new BodyScheduler();
+                resolver.Inject(_bodyScheduler);
+                return _bodyScheduler;
             }, Lifetime.Singleton);
         }
 
@@ -57,7 +71,17 @@ namespace Sample.Lifecycle {
         /// 更新処理
         /// </summary>
         private void Update() {
-            _session.Update(Time.deltaTime);
+            var deltaTime = Time.deltaTime;
+            _session?.Update(deltaTime);
+            _bodyScheduler?.Update(deltaTime);
+        }
+
+        /// <summary>
+        /// 後更新処理
+        /// </summary>
+        private void LateUpdate() {
+            var deltaTime = Time.deltaTime;
+            _bodyScheduler?.LateUpdate(deltaTime);
         }
     }
 }

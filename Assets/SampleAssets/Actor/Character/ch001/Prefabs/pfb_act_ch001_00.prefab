@@ -138,6 +138,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: d7c9803afac7ae14c8ac4af857bcc309, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6273982265638195577}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: d7c9803afac7ae14c8ac4af857bcc309, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8387529920927491251}
   m_SourcePrefab: {fileID: 100100000, guid: d7c9803afac7ae14c8ac4af857bcc309, type: 3}
 --- !u!137 &3156885841892692494 stripped
 SkinnedMeshRenderer:
@@ -217,3 +220,15 @@ MonoBehaviour:
       MaterialIndex: 0
     - Renderer: {fileID: 3156885841892692494}
       MaterialIndex: 0
+--- !u!114 &8387529920927491251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8628961304948358012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1131f45be3b1c342855d88f0e673882, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: SampleEngine.Runtime::SampleEngine.MotionBodyComponent

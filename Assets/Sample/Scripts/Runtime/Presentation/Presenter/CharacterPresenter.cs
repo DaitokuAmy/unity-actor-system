@@ -2,13 +2,20 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Sample.Application;
+using Sample.Core;
+using Unity.Mathematics;
 using UnityActorSystem;
 
 namespace Sample.Presentation {
     /// <summary>
     /// キャラ見た目反映用クラス
     /// </summary>
-    public class CharacterPresenter : ICharacterPresenter, IActorPresenter<int> {
+    public class CharacterPresenter : ICharacterPresenter, IReadOnlyCharacterViewPort, IActorPresenter<int> {
+        /// <inheritdoc/>
+        float3 IAimTarget.Position => ActorView.Body.Position;
+        /// <inheritdoc/>
+        quaternion IAimTarget.Rotation => ActorView.Body.Rotation;
+
         /// <summary>オーナーアクター</summary>
         protected Actor<int> Owner { get; private set; }
         /// <summary>制御用のビュー</summary>
@@ -55,7 +62,12 @@ namespace Sample.Presentation {
 
         /// <inheritdoc/>
         UniTask ICharacterPresenter.PlayAttackActionAsync(int index, CancellationToken ct) {
-            return ActorView.PlayAttackAsync(ct);
+            return ActorView.PlayAttackAsync(index, ct);
+        }
+
+        /// <inheritdoc/>
+        UniTask ICharacterPresenter.PlayJumpActionAsync(CancellationToken ct) {
+            return ActorView.PlayJumpAsync(ct);
         }
     }
 }

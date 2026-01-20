@@ -14,3 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SampleEngine.CharacterActorData
   BaseController: {fileID: 9100000, guid: 184e6a78923498e45a0ef4478a297b7e, type: 2}
   BaseColor: {r: 1, g: 0, b: 0, a: 1}
+  SpeedMultiplier: 3
+  JumpAction:
+    Clip: {fileID: -203655887218126122, guid: 5474a1fd6eb4d5a40b6ce5be2876a7f8, type: 3}
+    SequenceClip: {fileID: 11400000, guid: fc4c7f34eec76cb4489c136eba831413, type: 2}
+    InBlend: 0.2
+    OutBlend: 0.2
+  AttackActions: []

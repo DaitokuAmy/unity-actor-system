@@ -24,5 +24,11 @@ namespace Sample.Application {
         /// <param name="index">攻撃Index</param>
         /// <param name="ct">キャンセル用トークン</param>
         UniTask PlayAttackActionAsync(int index, CancellationToken ct);
+
+        /// <summary>
+        /// ジャンプアクション再生
+        /// </summary>
+        /// <param name="ct">キャンセル用トークン</param>
+        UniTask PlayJumpActionAsync(CancellationToken ct);
     }
 }

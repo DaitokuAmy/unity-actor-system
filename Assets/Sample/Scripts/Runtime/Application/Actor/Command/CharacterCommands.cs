@@ -8,6 +8,7 @@ namespace Sample.Application {
         /// </summary>
         private enum CommandOrder {
             Attack = 10,
+            Jump = 11,
             Move = 50,
         }
     }

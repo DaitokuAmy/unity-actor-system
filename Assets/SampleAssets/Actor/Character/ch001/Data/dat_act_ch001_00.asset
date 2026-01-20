@@ -14,3 +14,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SampleEngine.CharacterActorData
   BaseController: {fileID: 9100000, guid: 184e6a78923498e45a0ef4478a297b7e, type: 2}
   BaseColor: {r: 0, g: 0.6666665, b: 1, a: 1}
+  SpeedMultiplier: 3
+  JumpAction:
+    Clip: {fileID: -203655887218126122, guid: 5474a1fd6eb4d5a40b6ce5be2876a7f8, type: 3}
+    SequenceClip: {fileID: 11400000, guid: fc4c7f34eec76cb4489c136eba831413, type: 2}
+    InBlend: 0.2
+    OutBlend: 0.2
+  AttackActions:
+  - Clip: {fileID: -203655887218126122, guid: 9172444f06386364bad9f7db683c4f2e, type: 3}
+    SequenceClip: {fileID: 11400000, guid: adbe46e4e60b858468ecdae873e97407, type: 2}
+    InBlend: 0.2
+    OutBlend: 0.2
+  - Clip: {fileID: -203655887218126122, guid: 9dfc8f6f68033dd4f9bc40b2fcc0f8a3, type: 3}
+    SequenceClip: {fileID: 11400000, guid: 22c64813f2250e045af999ccf201f7ab, type: 2}
+    InBlend: 0.2
+    OutBlend: 0.2
+  - Clip: {fileID: -203655887218126122, guid: 8b2b4495a1b3c3247ab2379216588c22, type: 3}
+    SequenceClip: {fileID: 11400000, guid: a05005e288bfede44b1727c17797db9f, type: 2}
+    InBlend: 0.2
+    OutBlend: 0.2

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Sample.Presentation {
     /// <summary>
-    /// エネミーキャラ操作用クラス
+    /// AIによるキャラ操作クラス
     /// </summary>
     public class AICharacterController : CharacterController {
         private float _thinkTimer = 0.0f;

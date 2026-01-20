@@ -28,6 +28,10 @@ namespace Sample.Application {
                         return;
                     }
 
+                    if (command is CharacterCommands.Jump jump) {
+                        ChangeState<Jump>();
+                    }
+
                     if (command is CharacterCommands.Attack) {
                         Blackboard.AttackIndex = 0;
                         ChangeState<Attack>();

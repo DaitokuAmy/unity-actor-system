@@ -6,6 +6,6 @@ namespace Sample.Domain {
     /// </summary>
     public class PlayerModel : CharacterModel, IReadOnlyPlayerModel {
         /// <inheritdoc/>
-        public int AttackComboMax => 1;
+        public int AttackComboMax => 3;
     }
 }

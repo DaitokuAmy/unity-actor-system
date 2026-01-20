@@ -6,7 +6,7 @@ namespace SampleEngine {
     /// <summary>
     /// Material管理用のBodyComponent
     /// </summary>
-    public class MaterialManagementBodyComponent : BodyComponent {
+    public class MaterialBodyComponent : BodyComponent {
         /// <summary>
         /// マテリアルグループ情報
         /// </summary>

@@ -105,6 +105,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: af884cb33d01aaf40b988a086054dccb
+    m_Address: Assets/SampleAssets/Actor/Camera/cam001/Prefabs/pfb_act_cam001.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: cc5087570c176a445b02eaf21c8f97d2
     m_Address: Assets/SampleAssets/Motion/Human/hum001/anim_hum001_walking_lp.fbx
     m_ReadOnly: 0
