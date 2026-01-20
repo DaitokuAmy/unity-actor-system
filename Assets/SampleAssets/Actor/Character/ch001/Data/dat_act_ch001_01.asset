@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 67c23efdf2a3e544c8d33ecd539a77c6, type: 3}
-  m_Name: dat_act_ch001_00
+  m_Name: dat_act_ch001_01
   m_EditorClassIdentifier: Assembly-CSharp::SampleEngine.CharacterActorData
   BaseController: {fileID: 9100000, guid: 184e6a78923498e45a0ef4478a297b7e, type: 2}
-  BaseColor: {r: 0, g: 0.6666665, b: 1, a: 1}
+  BaseColor: {r: 1, g: 0, b: 0, a: 1}

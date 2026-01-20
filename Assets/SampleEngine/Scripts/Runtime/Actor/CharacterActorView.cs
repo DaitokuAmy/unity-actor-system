@@ -23,6 +23,7 @@ namespace Sample.Presentation {
         private readonly Animator _animator;
         private readonly CharacterController _characterController;
         private readonly RootMotionHandler _rootMotionHandler;
+        private readonly MaterialManagementBodyComponent _materialManagementBodyComponent;
         
         private Vector2 _velocityXZ;
 
@@ -36,6 +37,7 @@ namespace Sample.Presentation {
             _animator = _body.GetComponent<Animator>();
             _characterController = _body.GetComponent<CharacterController>();
             _rootMotionHandler = _body.GetComponent<RootMotionHandler>();
+            _materialManagementBodyComponent = _body.GetComponent<MaterialManagementBodyComponent>();
         }
 
         /// <inheritdoc/>
@@ -48,6 +50,7 @@ namespace Sample.Presentation {
             _body.GameObject.SetActive(true);
             
             _animator.runtimeAnimatorController = _data.BaseController;
+            _materialManagementBodyComponent.SetColor("Full", _data.BaseColor);
         }
 
         /// <inheritdoc/>

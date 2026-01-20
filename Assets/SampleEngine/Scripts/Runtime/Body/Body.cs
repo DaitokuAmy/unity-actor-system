@@ -83,19 +83,6 @@ namespace SampleEngine {
         }
 
         /// <summary>
-        /// BodyComponentの取得
-        /// </summary>
-        public TComponent GetBodyComponent<TComponent>()
-            where TComponent : BodyComponent {
-            var type = typeof(TComponent);
-            if (!_components.TryGetValue(type, out var component)) {
-                return null;
-            }
-
-            return (TComponent)component;
-        }
-
-        /// <summary>
         /// BodyComponentの追加
         /// </summary>
         public TComponent AddBodyComponent<TComponent>()

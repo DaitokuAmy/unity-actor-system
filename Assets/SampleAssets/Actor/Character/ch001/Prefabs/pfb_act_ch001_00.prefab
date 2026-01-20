@@ -114,6 +114,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: pfb_act_ch001_00
       objectReference: {fileID: 0}
+    - target: {fileID: 5822821947120931875, guid: d7c9803afac7ae14c8ac4af857bcc309, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: d7c9803afac7ae14c8ac4af857bcc309, type: 3}
       propertyPath: m_ApplyRootMotion
       value: 0
@@ -131,10 +135,23 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: d7c9803afac7ae14c8ac4af857bcc309, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7468134007454510633}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: d7c9803afac7ae14c8ac4af857bcc309, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6273982265638195577}
   m_SourcePrefab: {fileID: 100100000, guid: d7c9803afac7ae14c8ac4af857bcc309, type: 3}
+--- !u!137 &3156885841892692494 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 5822821947120931875, guid: d7c9803afac7ae14c8ac4af857bcc309, type: 3}
+  m_PrefabInstance: {fileID: 8863457107492767277}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7112590693107726821 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1852576806548013000, guid: d7c9803afac7ae14c8ac4af857bcc309, type: 3}
+  m_PrefabInstance: {fileID: 8863457107492767277}
+  m_PrefabAsset: {fileID: 0}
+--- !u!137 &7535048212859156627 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7813590141776298306, guid: d7c9803afac7ae14c8ac4af857bcc309, type: 3}
   m_PrefabInstance: {fileID: 8863457107492767277}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &8628961304948358012 stripped
@@ -181,3 +198,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: SampleEngine.Runtime::SampleEngine.RootMotionHandler
   _positionScale: {x: 1, y: 1, z: 1}
   _anglesScale: {x: 1, y: 1, z: 1}
+--- !u!114 &6273982265638195577
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8628961304948358012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b47e34d17cac3d041aecce9b64e8a461, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: SampleEngine.Runtime::SampleEngine.ColorVariationBodyComponent
+  _materialGroupInfos:
+  - Key: Full
+    MaterialInfos:
+    - Renderer: {fileID: 7535048212859156627}
+      MaterialIndex: 0
+    - Renderer: {fileID: 3156885841892692494}
+      MaterialIndex: 0

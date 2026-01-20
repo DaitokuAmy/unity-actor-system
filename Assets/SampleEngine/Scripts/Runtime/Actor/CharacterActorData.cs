@@ -8,5 +8,7 @@ namespace SampleEngine {
     public sealed class CharacterActorData : ScriptableObject {
         [Tooltip("アニメーションの基礎となるController")]
         public RuntimeAnimatorController BaseController;
+        [Tooltip("カラー情報")]
+        public Color BaseColor;
     }
 }
