@@ -77,6 +77,7 @@ namespace SampleEngine {
         public AnimatorControllerPlayable Play(RuntimeAnimatorController controller, float blendDuration = 0.0f) {
             if (!_animatorControllerPlayableCache.TryGetValue(controller, out var playable)) {
                 playable = AnimatorControllerPlayable.Create(_playableGraph, controller);
+                playable.SetSpeed(1.0f);
                 _animatorControllerPlayableCache[controller] = playable;
             }
 
@@ -91,6 +92,7 @@ namespace SampleEngine {
         public AnimationClipPlayable Play(AnimationClip clip, float blendDuration = 0.0f) {
             if (!_animationClipPlayableCache.TryGetValue(clip, out var playable)) {
                 playable = AnimationClipPlayable.Create(_playableGraph, clip);
+                playable.SetSpeed(1.0f);
                 _animationClipPlayableCache[clip] = playable;
             }
 

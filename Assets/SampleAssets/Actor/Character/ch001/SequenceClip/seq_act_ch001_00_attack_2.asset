@@ -13,24 +13,7 @@ MonoBehaviour:
   m_Name: SequenceTrack
   m_EditorClassIdentifier: ActionSequencer::ActionSequencer.SequenceTrack
   label: Track
-  sequenceEvents:
-  - {fileID: -2037528048688523486}
---- !u!114 &-2037528048688523486
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0acad98900dbd5a47a3452d6e1046448, type: 3}
-  m_Name: CombableRangeSequenceEvent
-  m_EditorClassIdentifier: SampleEngine.Runtime::SampleEngine.CombableRangeSequenceEvent
-  label: "\u30B3\u30F3\u30DC\u53EF\u80FD"
-  active: 1
-  enterTime: 0.21666667
-  exitTime: 0.71666664
+  sequenceEvents: []
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0

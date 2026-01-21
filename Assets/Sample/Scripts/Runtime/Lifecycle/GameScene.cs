@@ -84,7 +84,7 @@ namespace Sample.Lifecycle {
         /// 後更新処理
         /// </summary>
         private void LateUpdate() {
-            _session?.Update();
+            _session?.LateUpdate();
         }
     }
 }

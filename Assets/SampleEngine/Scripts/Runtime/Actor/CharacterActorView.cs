@@ -26,6 +26,7 @@ namespace Sample.Presentation {
         private readonly RootMotionHandler _rootMotionHandler;
         private readonly MaterialBodyComponent _materialBodyComponent;
         private readonly MotionBodyComponent _motionBodyComponent;
+        private readonly SequenceControllerProvider _sequenceControllerProvider;
         private readonly SequenceController _sequenceController;
 
         private Vector2 _movementValue;
@@ -48,12 +49,18 @@ namespace Sample.Presentation {
             _rootMotionHandler = _body.GetComponent<RootMotionHandler>();
             _materialBodyComponent = _body.GetComponent<MaterialBodyComponent>();
             _motionBodyComponent = _body.GetComponent<MotionBodyComponent>();
+            _sequenceControllerProvider = _body.GetComponent<SequenceControllerProvider>();
+            if (_sequenceControllerProvider == null) {
+                _sequenceControllerProvider = _body.AddComponent<SequenceControllerProvider>();
+            }
 
             _sequenceController = new SequenceController();
+            _sequenceControllerProvider.SetSequenceController(_sequenceController);
         }
 
         /// <inheritdoc/>
         void IDisposable.Dispose() {
+            _sequenceControllerProvider.SetSequenceController(null);
             Object.Destroy(_body.GameObject);
         }
 
@@ -117,20 +124,20 @@ namespace Sample.Presentation {
             }
 
             SetMoveValue(0, 0);
-            return PlayGeneralActionAsync(actions[index], ct);
+            return PlayClipActionAsync(actions[index], ct);
         }
 
         /// <summary>
         /// ジャンプ再生
         /// </summary>
         public UniTask PlayJumpAsync(CancellationToken ct) {
-            return PlayGeneralActionAsync(_data.JumpAction, ct);
+            return PlayClipActionAsync(_data.JumpAction, ct);
         }
 
         /// <summary>
-        /// 汎用アクションの再生
+        /// 汎用AnimationClipアクションの再生
         /// </summary>
-        private async UniTask PlayGeneralActionAsync(CharacterActorData.GeneralActionInfo action, CancellationToken ct) {
+        private async UniTask PlayClipActionAsync(CharacterActorData.ClipActionInfo action, CancellationToken ct) {
             _motionBodyComponent.Play(action.Clip, action.InBlend);
             if (action.SequenceClip != null) {
                 _sequenceController.Play(action.SequenceClip);
@@ -149,7 +156,7 @@ namespace Sample.Presentation {
                 var current = _animator.GetFloat(id);
                 _animator.SetFloat(id, Mathf.Lerp(current, target, t));
             }
-            
+
             // 移動値を相対方向に変換
             var localMovement = new Vector3(_movementValue.x, 0.0f, _movementValue.y);
             localMovement = _transform.InverseTransformVector(localMovement);

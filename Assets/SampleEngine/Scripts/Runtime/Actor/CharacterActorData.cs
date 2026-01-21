@@ -12,7 +12,7 @@ namespace SampleEngine {
         /// 汎用アクション情報
         /// </summary>
         [Serializable]
-        public sealed class GeneralActionInfo {
+        public sealed class ClipActionInfo {
             public AnimationClip Clip;
             public SequenceClip SequenceClip;
             public float InBlend = 0.2f;
@@ -25,8 +25,8 @@ namespace SampleEngine {
         public float SpeedMultiplier = 10.0f;
         
         [Tooltip("ジャンプアクション")]
-        public GeneralActionInfo JumpAction;
+        public ClipActionInfo JumpAction;
         [Tooltip("攻撃アクションリスト")]
-        public GeneralActionInfo[] AttackActions;
+        public ClipActionInfo[] AttackActions;
     }
 }

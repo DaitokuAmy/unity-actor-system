@@ -30,8 +30,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: SampleEngine.Runtime::SampleEngine.TestRangeSequenceEvent
   label: "\u30C6\u30B9\u30C8\u30E9\u30D9\u30EB"
   active: 1
-  enterTime: 0.95
-  exitTime: 1.4833333
+  enterTime: 1
+  exitTime: 1.6333333
   Label: "\u30B3\u30F3\u30DC\u53EF\u80FD"
 --- !u!114 &11400000
 MonoBehaviour:
@@ -64,5 +64,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: SampleEngine.Runtime::SampleEngine.CombableRangeSequenceEvent
   label: "\u30B3\u30F3\u30DC\u53EF\u80FD"
   active: 1
-  enterTime: 0.95
-  exitTime: 1.4666667
+  enterTime: 1
+  exitTime: 1.6333333

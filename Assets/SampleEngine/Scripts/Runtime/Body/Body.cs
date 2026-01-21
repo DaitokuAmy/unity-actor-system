@@ -104,6 +104,11 @@ namespace SampleEngine {
         public TComponent GetComponent<TComponent>() where TComponent : Component => _gameObject.GetComponent<TComponent>();
 
         /// <summary>
+        /// Unity用のComponent追加
+        /// </summary>
+        public TComponent AddComponent<TComponent>() where TComponent : Component => _gameObject.AddComponent<TComponent>();
+
+        /// <summary>
         /// Unity用のComponent取得
         /// </summary>
         public TComponent[] GetComponents<TComponent>() where TComponent : Component => _gameObject.GetComponents<TComponent>();
