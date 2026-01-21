@@ -1,12 +1,13 @@
-using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Sample.Application;
 using Sample.Infrastructure;
 using UnityActorSystem;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using VContainer;
 using VContainer.Unity;
+using InputDevice = Sample.Infrastructure.InputDevice;
 
 namespace Sample.Lifecycle {
     /// <summary>
@@ -16,9 +17,10 @@ namespace Sample.Lifecycle {
     public class GameScene : LifetimeScope {
         [SerializeField]
         private Transform _characterRoot;
+        [SerializeField]
+        private PlayerInput _playerInput;
 
         private GameSession _session;
-        private BodyScheduler _bodyScheduler;
 
         /// <inheritdoc/>
         protected override void Awake() {
@@ -35,21 +37,25 @@ namespace Sample.Lifecycle {
             builder.Register<ITableAssetStore, TableAssetStore>(Lifetime.Singleton);
             builder.Register<ICameraAssetStore, CameraAssetStore>(Lifetime.Singleton);
             builder.Register<ICharacterAssetStore, CharacterAssetStore>(Lifetime.Singleton);
-            builder.Register(_ => {
-                var manager = new ActorManager<int>();
-                return manager;
-            },Lifetime.Singleton);
+            builder.Register<BodyScheduler>(Lifetime.Singleton);
+            builder.Register<IActorScheduler<int>, ActorScheduler<int>>(Lifetime.Singleton).AsSelf();
             builder.Register<CharacterManager>(Lifetime.Singleton);
             builder.Register<CameraManager>(Lifetime.Singleton);
+            builder.Register<CameraService>(Lifetime.Singleton);
+            builder.Register<IInputDevice>(resolver => {
+                var device = new InputDevice(_playerInput);
+                resolver.Inject(device);
+                return device;
+            }, Lifetime.Singleton);
             builder.Register<ICharacterActorFactory>(resolver => {
                 var factory = new CharacterActorFactory(_characterRoot);
                 resolver.Inject(factory);
                 return factory;
             }, Lifetime.Singleton);
-            builder.Register(resolver => {
-                _bodyScheduler = new BodyScheduler();
-                resolver.Inject(_bodyScheduler);
-                return _bodyScheduler;
+            builder.Register<ICameraActorFactory>(resolver => {
+                var factory = new CameraActorFactory(_characterRoot);
+                resolver.Inject(factory);
+                return factory;
             }, Lifetime.Singleton);
         }
 
@@ -71,17 +77,14 @@ namespace Sample.Lifecycle {
         /// 更新処理
         /// </summary>
         private void Update() {
-            var deltaTime = Time.deltaTime;
-            _session?.Update(deltaTime);
-            _bodyScheduler?.Update(deltaTime);
+            _session?.Update();
         }
 
         /// <summary>
         /// 後更新処理
         /// </summary>
         private void LateUpdate() {
-            var deltaTime = Time.deltaTime;
-            _bodyScheduler?.LateUpdate(deltaTime);
+            _session?.Update();
         }
     }
 }

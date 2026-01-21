@@ -1,6 +1,7 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityActorSystem;
+using UnityEngine;
 using VContainer;
 
 namespace Sample.Application {
@@ -9,11 +10,19 @@ namespace Sample.Application {
     /// </summary>
     public class GameSession {
         [Inject]
-        private ActorManager<int> _actorManager;
+        private readonly BodyScheduler _bodyScheduler;
         [Inject]
-        private ITableAssetStore _tableAssetStore;
+        private readonly ActorScheduler<int> _actorScheduler;
         [Inject]
-        private CharacterManager _characterManager;
+        private readonly ITableAssetStore _tableAssetStore;
+        [Inject]
+        private readonly CameraManager _cameraManager;
+        [Inject]
+        private readonly CharacterManager _characterManager;
+        [Inject]
+        private readonly CameraService _cameraService;
+        [Inject]
+        private readonly IInputDevice _inputDevice;
 
         private bool _started;
         private CancellationTokenSource _cancellationTokenSource;
@@ -32,15 +41,23 @@ namespace Sample.Application {
             _started = true;
             _cancellationTokenSource = new();
 
-            // マスター読み込み
-            await _tableAssetStore.LoadTablesAsync(ct);
+            var linkedCt = CancellationTokenSource.CreateLinkedTokenSource(CancellationToken, ct).Token;
 
-            // キャラ生成
-            _characterManager.CreatePlayerAsync(1, CancellationToken).Forget();
+            // マスター読み込み
+            await _tableAssetStore.LoadTablesAsync(linkedCt);
+            
+            // カメラ生成
+            var camActor = await _cameraManager.CreateAsync("cam001", linkedCt);
+
+            // プレイヤー生成
+            var playerActor = await _characterManager.CreatePlayerAsync(1, linkedCt);
+            
+            // カメラターゲット初期化
+            _cameraService.SetTargetCharacter(camActor.Id, playerActor.Id);
 
             // エネミー生成
             for (var i = 0; i < 4; i++) {
-                _characterManager.CreateEnemyAsync(1, CancellationToken).Forget();
+                await _characterManager.CreateEnemyAsync(1, linkedCt);
             }
         }
 
@@ -62,18 +79,30 @@ namespace Sample.Application {
         /// <summary>
         /// 更新処理
         /// </summary>
-        /// <param name="deltaTime">変位時間</param>
-        public void Update(float deltaTime) {
+        public void Update() {
             if (!_started) {
                 return;
             }
 
-            _actorManager.UpdateController(deltaTime);
-            _actorManager.UpdateStateMachine(deltaTime);
-            _actorManager.UpdateModel(deltaTime);
-            _actorManager.UpdatePresenter(deltaTime);
-            _actorManager.UpdateView(deltaTime);
-            _actorManager.UpdateReceiver(deltaTime);
+            var deltaTime = Time.deltaTime;
+            _inputDevice.Update(deltaTime);
+            _actorScheduler.PreUpdate(deltaTime);
+            _actorScheduler.UpdateLogic(deltaTime);
+            _actorScheduler.UpdatePresentation(deltaTime);
+            _bodyScheduler.Update(deltaTime);
+        }
+
+        /// <summary>
+        /// 後更新処理
+        /// </summary>
+        public void LateUpdate() {
+            if (!_started) {
+                return;
+            }
+
+            var deltaTime = Time.deltaTime;
+            _actorScheduler.PostUpdate(deltaTime);
+            _bodyScheduler.LateUpdate(deltaTime);
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Sample.Domain;
@@ -26,12 +27,17 @@ namespace Sample.Application {
 
                 // 攻撃アクション再生
                 _task = Presenter.PlayAttackActionAsync(_index, CancellationToken);
-                
+
                 Debug.Log($"Attack_{_index}");
             }
 
             /// <inheritdoc/>
-            protected override void Update(IReadOnlyList<ActorCommand> commands, IReadOnlyList<ActorSignal> signals, float deltaTime) {
+            protected override Type Update(IReadOnlyList<ActorCommand> commands, IReadOnlyList<ActorSignal> signals, float deltaTime) {
+                var nextType = base.Update(commands, signals, deltaTime);
+                if (nextType != null) {
+                    return nextType;
+                }
+                
                 foreach (var signal in signals) {
                     if (signal is CharacterSignals.BeginCombable) {
                         _canCombo = true;
@@ -46,16 +52,17 @@ namespace Sample.Application {
                     if (command is CharacterCommands.Attack && Model is PlayerModel playerModel) {
                         if (_canCombo && _index + 1 < playerModel.AttackComboMax) {
                             Blackboard.AttackIndex = _index + 1;
-                            ChangeState<Attack>(true);
-                            return;
+                            return typeof(Attack);
                         }
                     }
                 }
 
                 // 演出が終わったら待機に戻る
                 if (_task.Status != UniTaskStatus.Pending) {
-                    ChangeState<Idle>();
+                    return typeof(Idle);
                 }
+
+                return null;
             }
         }
     }

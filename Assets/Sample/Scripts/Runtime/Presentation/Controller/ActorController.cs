@@ -1,11 +1,16 @@
 using System;
+using System.Threading;
+using R3;
 using UnityActorSystem;
 
 namespace Sample.Presentation {
     /// <summary>
-    /// キャラ操作用クラス基底
+    /// アクター操作用クラス基底
     /// </summary>
-    public abstract class CharacterController : IActorController<int> {
+    public abstract class ActorController : IActorController<int> {
+        private CompositeDisposable _compositeDisposable;
+        private CancellationTokenSource _cancellationTokenSource;
+
         /// <summary>オーナーアクター</summary>
         protected Actor<int> Owner { get; private set; }
 
@@ -14,12 +19,17 @@ namespace Sample.Presentation {
 
         /// <inheritdoc/>
         void IActorInterface<int>.Activate() {
-            Activate();
+            _compositeDisposable = new CompositeDisposable();
+            _cancellationTokenSource = new CancellationTokenSource();
+            Activate(_compositeDisposable, _cancellationTokenSource.Token);
         }
 
         /// <inheritdoc/>
         void IActorInterface<int>.Deactivate() {
             Deactivate();
+            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource.Dispose();
+            _compositeDisposable.Dispose();
         }
 
         /// <inheritdoc/>
@@ -40,17 +50,17 @@ namespace Sample.Presentation {
         /// <summary>
         /// アクティブ時処理
         /// </summary>
-        protected virtual void Activate() {}
+        protected virtual void Activate(CompositeDisposable compositeDisposable, CancellationToken ct) { }
 
         /// <summary>
         /// 非アクティブ時処理
         /// </summary>
-        protected virtual void Deactivate() {}
+        protected virtual void Deactivate() { }
 
         /// <summary>
         /// 更新処理
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
-        protected virtual void Update(float deltaTime) {}
+        protected virtual void Update(float deltaTime) { }
     }
 }

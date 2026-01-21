@@ -11,14 +11,22 @@ namespace Sample.Application {
     /// </summary>
     public sealed class CharacterManager : IDisposable {
         [Inject]
-        private readonly ActorManager<int> _actorManager;
-        [Inject]
         private readonly ITableAssetStore _tableAssetStore;
         [Inject]
         private readonly ICharacterActorFactory _actorFactory;
-        
+
+        private ActorManager<int> _actorManager;
+
         private int _nextPlayerId = 1;
         private int _nextEnemyId = 1001;
+
+        /// <summary>
+        /// Inject処理
+        /// </summary>
+        [Inject]
+        public void Construct(IActorScheduler<int> actorScheduler) {
+            _actorManager = new ActorManager<int>(actorScheduler);
+        }
 
         /// <summary>
         /// 廃棄時処理
@@ -106,6 +114,13 @@ namespace Sample.Application {
 
             _actorFactory.DestroyEnemy(actor, playerModel);
             _actorManager.DeleteActor(actor);
+        }
+
+        /// <summary>
+        /// アクターの取得
+        /// </summary>
+        public bool TryGetActor(int id, out Actor<int> actor) {
+            return _actorManager.TryGetActor(id, out actor);
         }
     }
 }

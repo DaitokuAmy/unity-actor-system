@@ -18,7 +18,7 @@ namespace UnityActorSystem {
         void IActorState.Enter() => Enter();
 
         /// <inheritdoc/>
-        void IActorState.Update(IReadOnlyList<ActorCommand> commands, IReadOnlyList<ActorSignal> signals, float deltaTime) => Update(commands, signals, deltaTime);
+        Type IActorState.Update(IReadOnlyList<ActorCommand> commands, IReadOnlyList<ActorSignal> signals, float deltaTime) => Update(commands, signals, deltaTime);
 
         /// <inheritdoc/>
         void IActorState.Exit() => Exit();
@@ -48,24 +48,12 @@ namespace UnityActorSystem {
         /// <param name="commands">処理対象のコマンドリスト</param>
         /// <param name="signals">処理対象のシグナルリスト</param>
         /// <param name="deltaTime">変位時間</param>
-        protected virtual void Update(IReadOnlyList<ActorCommand> commands, IReadOnlyList<ActorSignal> signals, float deltaTime) { }
+        /// <returns>遷移先のState型(nullなら維持)</returns>
+        protected virtual Type Update(IReadOnlyList<ActorCommand> commands, IReadOnlyList<ActorSignal> signals, float deltaTime) { return null; }
 
         /// <summary>
         /// 終了処理
         /// </summary>
         protected virtual void Exit() { }
-
-        /// <summary>
-        /// ステートの変更
-        /// </summary>
-        /// <param name="force">タイプに変化がなくても変更処理を行うか</param>
-        protected void ChangeState<T>(bool force = false)
-            where T : ActorState<TKey, TBlackboard> {
-            if (_stateMachine == null) {
-                throw new InvalidOperationException("State Machine is not set.");
-            }
-
-            _stateMachine.ChangeState(typeof(T), force);
-        }
     }
 }

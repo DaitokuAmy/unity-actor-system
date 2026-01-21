@@ -25,7 +25,7 @@ namespace Sample.Infrastructure {
         /// </summary>
         private string GetCameraPrefabPath(string key) {
             var folderName = key.Substring(0, "cam000".Length);
-            return $"{RootPath}{folderName}/Data/dat_act_{key}.asset";
+            return $"{RootPath}{folderName}/Prefabs/pfb_act_{key}.prefab";
         }
     }
 }

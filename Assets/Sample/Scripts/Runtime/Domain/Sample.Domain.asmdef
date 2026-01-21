@@ -2,6 +2,7 @@
     "name": "Sample.Domain",
     "rootNamespace": "",
     "references": [
+        "GUID:d8b63aba1907145bea998dd612889d6b",
         "GUID:b0214a6008ed146ff8f122a6a9c2f6cc",
         "GUID:f43ef08c592fd334da2363800337e3e2",
         "GUID:b5a4d64783e9b4f4d8a5a891be19ed73"

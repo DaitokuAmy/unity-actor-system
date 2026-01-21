@@ -10,7 +10,7 @@ namespace Sample.Application {
         /// </summary>
         public class Attack : ActorCommand {
             /// <inheritdoc/>
-            protected override int Order => (int) CommandOrder.Attack;
+            protected override int Order => (int)CommandOrder.Attack;
         }
     }
 }

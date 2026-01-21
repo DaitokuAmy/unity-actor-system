@@ -43,7 +43,10 @@ namespace UnityActorSystem {
         /// <inheritdoc/>
         void IActorStateMachine.Update(IReadOnlyList<ActorCommand> commands, IReadOnlyList<ActorSignal> signals, float deltaTime) {
             if (_currentState != null) {
-                _currentState.Update(commands, signals, deltaTime);
+                var nextType = _currentState.Update(commands, signals, deltaTime);
+                if (nextType != null) {
+                    ChangeState(nextType);
+                }
             }
         }
 
@@ -51,13 +54,8 @@ namespace UnityActorSystem {
         /// ステートの変更
         /// </summary>
         /// <param name="type">変更するステートの型</param>
-        /// <param name="force">現在のステートタイプと同じ型だったとしても処理を行うか</param>
-        public void ChangeState(Type type, bool force = false) {
+        private void ChangeState(Type type) {
             if (_disposed) {
-                return;
-            }
-
-            if (_currentStateType == type && !force) {
                 return;
             }
 
@@ -108,8 +106,9 @@ namespace UnityActorSystem {
         /// <summary>
         /// ステートリストの設定
         /// </summary>
+        /// <param name="startStateType">開始ステートタイプ</param>
         /// <param name="states">ステートリスト</param>
-        public void SetStates(params ActorState<TKey, TBlackboard>[] states) {
+        public void SetStates(Type startStateType, params ActorState<TKey, TBlackboard>[] states) {
             ResetState();
             
             _stateMap.Clear();
@@ -119,6 +118,8 @@ namespace UnityActorSystem {
                     state.Setup(this);
                 }
             }
+            
+            ChangeState(startStateType);
         }
     }
 }

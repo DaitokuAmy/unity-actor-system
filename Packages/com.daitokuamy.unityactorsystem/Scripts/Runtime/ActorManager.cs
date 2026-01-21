@@ -7,6 +7,7 @@ namespace UnityActorSystem {
     /// アクター管理用クラス
     /// </summary>
     public sealed class ActorManager<TKey> : IDisposable {
+        private readonly IActorScheduler<TKey> _scheduler;
         private readonly List<IActorRuntime<TKey>> _actorRuntimes = new();
         private readonly Dictionary<TKey, Actor<TKey>> _actorMap = new();
         private readonly ObjectPool<Actor<TKey>> _actorPool;
@@ -16,7 +17,7 @@ namespace UnityActorSystem {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public ActorManager(int poolMaxSize = 10000) {
+        public ActorManager(IActorScheduler<TKey> scheduler, int poolMaxSize = 10000) {
             _actorPool = new ObjectPool<Actor<TKey>>(() => {
                 var actor = new Actor<TKey>();
                 return actor;
@@ -24,6 +25,9 @@ namespace UnityActorSystem {
                 var runtime = (IActorRuntime<TKey>)actor;
                 runtime.Dispose();
             }, maxSize: poolMaxSize);
+            
+            _scheduler = scheduler;
+            _scheduler.RegisterManager(this);
         }
 
         /// <summary>
@@ -35,6 +39,8 @@ namespace UnityActorSystem {
             }
 
             _disposed = true;
+            
+            _scheduler.UnregisterManager(this);
             _actorMap.Clear();
             foreach (var actorRuntime in _actorRuntimes) {
                 _actorPool.Release((Actor<TKey>)actorRuntime);
@@ -89,7 +95,7 @@ namespace UnityActorSystem {
             if (actor == null) {
                 return;
             }
-            
+
             DeleteActor(actor.Id);
         }
 

@@ -5,7 +5,7 @@ namespace Sample.Presentation {
     /// <summary>
     /// AIによるキャラ操作クラス
     /// </summary>
-    public class AICharacterController : CharacterController {
+    public class AICharacterController : ActorController {
         private float _thinkTimer = 0.0f;
         private Vector2 _moveVector;
 

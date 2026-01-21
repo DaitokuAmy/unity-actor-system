@@ -14,6 +14,8 @@ namespace Sample.Lifecycle {
     /// </summary>
     public sealed class CharacterActorFactory : ICharacterActorFactory {
         [Inject]
+        private IObjectResolver _objectResolver;
+        [Inject]
         private ICharacterAssetStore _characterAssetStore;
         [Inject]
         private BodyScheduler _bodyScheduler;
@@ -35,16 +37,19 @@ namespace Sample.Lifecycle {
 
             // 生成/初期化
             var gameObj = Object.Instantiate(prefab, _rootTransform, false);
-            gameObj.name = $"Player_{model.Master.Id:D4}";
+            gameObj.name = gameObj.name.Replace("(Clone)", $"_Player{model.Master.Id:D4}");
             var body = new Body(gameObj);
             _bodyScheduler.AddBody(body);
             var view = new CharacterActorView(body, actorData);
             actor.SetView(view);
             var controller = new InputCharacterController();
+            _objectResolver.Inject(controller);
             actor.SetController(controller);
             var presenter = new CharacterPresenter(view);
+            _objectResolver.Inject(presenter);
             actor.SetPresenter(presenter);
             var receiver = new CharacterReceiver(view);
+            _objectResolver.Inject(receiver);
             actor.SetReceiver(receiver);
         }
 
@@ -56,16 +61,19 @@ namespace Sample.Lifecycle {
 
             // 生成/初期化
             var gameObj = Object.Instantiate(prefab, _rootTransform, false);
-            gameObj.name = $"Enemy_{model.Master.Id:D4}";
+            gameObj.name = gameObj.name.Replace("(Clone)", $"_Enemy{model.Master.Id:D4}");
             var body = new Body(gameObj);
             _bodyScheduler.AddBody(body);
             var view = new CharacterActorView(body, actorData);
             actor.SetView(view);
             var controller = new AICharacterController();
+            _objectResolver.Inject(controller);
             actor.SetController(controller);
             var presenter = new CharacterPresenter(view);
+            _objectResolver.Inject(presenter);
             actor.SetPresenter(presenter);
             var receiver = new CharacterReceiver(view);
+            _objectResolver.Inject(receiver);
             actor.SetReceiver(receiver);
         }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace UnityActorSystem {
@@ -16,7 +17,8 @@ namespace UnityActorSystem {
         /// <param name="commands">処理対象のコマンドリスト</param>
         /// <param name="signals">処理対象のシグナルリスト</param>
         /// <param name="deltaTime">変位時間</param>
-        void Update(IReadOnlyList<ActorCommand> commands, IReadOnlyList<ActorSignal> signals, float deltaTime);
+        /// <returns>遷移先のState型(nullなら維持)</returns>
+        Type Update(IReadOnlyList<ActorCommand> commands, IReadOnlyList<ActorSignal> signals, float deltaTime);
 
         /// <summary>
         /// 終了処理

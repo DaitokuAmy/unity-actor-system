@@ -5,7 +5,6 @@ using Cysharp.Threading.Tasks;
 using SampleEngine;
 using UnityActorSystem;
 using UnityEngine;
-using UnityEngine.Playables;
 using Object = UnityEngine.Object;
 
 namespace Sample.Presentation {
@@ -29,7 +28,8 @@ namespace Sample.Presentation {
         private readonly MotionBodyComponent _motionBodyComponent;
         private readonly SequenceController _sequenceController;
 
-        private Vector2 _velocityXZ;
+        private Vector2 _movementValue;
+        private Vector3 _aimPoint;
 
         /// <summary>Bodyの参照</summary>
         public Body Body => _body;
@@ -86,23 +86,23 @@ namespace Sample.Presentation {
             }
 
             // Motion用プロパティ更新
-            SetFloatBlend(SpeedXPropId, _velocityXZ.x, 0.2f);
-            SetFloatBlend(SpeedZPropId, _velocityXZ.y, 0.2f);
-            SetFloatBlend(SpeedPropId, _velocityXZ.magnitude, 0.2f);
+            SetFloatBlend(SpeedXPropId, _movementValue.x, 0.2f);
+            SetFloatBlend(SpeedZPropId, _movementValue.y, 0.2f);
+            SetFloatBlend(SpeedPropId, _movementValue.magnitude, 0.2f);
 
             // シーケンス更新
             _sequenceController.Update(deltaTime);
         }
 
         /// <summary>
-        /// 移動速度の設定
+        /// 移動に利用する値の設定
         /// </summary>
-        /// <param name="x">X軸移動速度</param>
-        /// <param name="z">Z軸移動速度</param>
-        public void SetVelocity(float x, float z) {
-            _velocityXZ.x = x;
-            _velocityXZ.y = z;
-            _velocityXZ *= _data.SpeedMultiplier;
+        /// <param name="x">X軸移動値</param>
+        /// <param name="z">Z軸移動値</param>
+        public void SetMoveValue(float x, float z) {
+            _movementValue.x = x;
+            _movementValue.y = z;
+            _movementValue *= _data.SpeedMultiplier;
         }
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace Sample.Presentation {
                 return UniTask.CompletedTask;
             }
 
-            SetVelocity(0, 0);
+            SetMoveValue(0, 0);
             return PlayGeneralActionAsync(actions[index], ct);
         }
 

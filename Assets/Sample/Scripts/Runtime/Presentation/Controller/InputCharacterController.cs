@@ -1,48 +1,50 @@
+using System.Threading;
+using R3;
 using Sample.Application;
 using UnityEngine;
+using VContainer;
 
 namespace Sample.Presentation {
     /// <summary>
     /// 入力によるキャラ操作クラス
     /// </summary>
-    public class InputCharacterController : CharacterController {
+    public class InputCharacterController : ActorController {
+        [Inject]
+        private IInputDevice _inputDevice;
+        [Inject]
+        private CameraService _cameraService;
+
+        /// <inheritdoc/>
+        protected override void Activate(CompositeDisposable compositeDisposable, CancellationToken ct) {
+            base.Activate(compositeDisposable, ct);
+
+            // 攻撃入力
+            _inputDevice.AttackSubject
+                .Subscribe(_ => {
+                    var command = Owner.CreateCommand<CharacterCommands.Attack>();
+                    Owner.AddCommand(command);
+                })
+                .AddTo(compositeDisposable);
+
+            // ジャンプ入力
+            _inputDevice.JumpSubject
+                .Subscribe(_ => {
+                    var command = Owner.CreateCommand<CharacterCommands.Jump>();
+                    Owner.AddCommand(command);
+                })
+                .AddTo(compositeDisposable);
+        }
+
         /// <inheritdoc/>
         protected override void Update(float deltaTime) {
             base.Update(deltaTime);
-            
-            // 攻撃判定
-            if (Input.GetMouseButtonDown(0)) {
-                var command = Owner.CreateCommand<CharacterCommands.Attack>();
-                Owner.AddCommand(command);
-            }
-            
-            // ジャンプ判定
-            if (Input.GetKeyDown(KeyCode.Space)) {
-                var command = Owner.CreateCommand<CharacterCommands.Jump>();
-                Owner.AddCommand(command);
-            }
 
-            // 移動判定
-            var moveVector = Vector2.zero;
-            if (Input.GetKey(KeyCode.A)) {
-                moveVector.x -= 1.0f;
-            }
-
-            if (Input.GetKey(KeyCode.D)) {
-                moveVector.x += 1.0f;
-            }
-
-            if (Input.GetKey(KeyCode.S)) {
-                moveVector.y -= 1.0f;
-            }
-
-            if (Input.GetKey(KeyCode.W)) {
-                moveVector.y += 1.0f;
-            }
-
-            if (moveVector.sqrMagnitude > float.Epsilon) {
+            // 移動入力
+            var moveDir = _inputDevice.MoveDir;
+            if (moveDir.sqrMagnitude > float.Epsilon) {
+                moveDir = _cameraService.TransformCameraDirection(moveDir.x, moveDir.y);
                 var command = Owner.CreateCommand<CharacterCommands.Move>();
-                command.Set(moveVector.x, moveVector.y);
+                command.Set(moveDir.x, moveDir.y);
                 Owner.AddCommand(command);
             }
         }

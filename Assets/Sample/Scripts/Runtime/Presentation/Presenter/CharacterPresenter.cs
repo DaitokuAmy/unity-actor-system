@@ -10,11 +10,13 @@ namespace Sample.Presentation {
     /// <summary>
     /// キャラ見た目反映用クラス
     /// </summary>
-    public class CharacterPresenter : ICharacterPresenter, IReadOnlyCharacterViewPort, IActorPresenter<int> {
+    public class CharacterPresenter : ICharacterPresenter, IActorPresenter<int> {
+        /// <summary>所有者Id</summary>
+        int IActorTransform.OwnerId => Owner.Id;
         /// <inheritdoc/>
-        float3 IAimTarget.Position => ActorView.Body.Position;
+        float3 IActorTransform.Position => ActorView.Body.Position;
         /// <inheritdoc/>
-        quaternion IAimTarget.Rotation => ActorView.Body.Rotation;
+        quaternion IActorTransform.Rotation => ActorView.Body.Rotation;
 
         /// <summary>オーナーアクター</summary>
         protected Actor<int> Owner { get; private set; }
@@ -52,12 +54,12 @@ namespace Sample.Presentation {
 
         /// <inheritdoc/>
         void ICharacterPresenter.ChangeIdle() {
-            ActorView.SetVelocity(0.0f, 0.0f);
+            ActorView.SetMoveValue(0.0f, 0.0f);
         }
 
         /// <inheritdoc/>
         void ICharacterPresenter.Move(float x, float y) {
-            ActorView.SetVelocity(x, y);
+            ActorView.SetMoveValue(x, y);
         }
 
         /// <inheritdoc/>

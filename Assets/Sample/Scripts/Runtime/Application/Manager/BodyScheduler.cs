@@ -7,7 +7,7 @@ namespace Sample.Application {
     /// Bodyの更新を行うためのクラス
     /// </summary>
     public sealed class BodyScheduler : IDisposable {
-        private List<Body> _bodies = new();
+        private readonly List<Body> _bodies = new();
         
         /// <summary>
         /// 廃棄時処理

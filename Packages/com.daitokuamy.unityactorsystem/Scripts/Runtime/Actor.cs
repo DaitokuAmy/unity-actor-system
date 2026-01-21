@@ -45,7 +45,7 @@ namespace UnityActorSystem {
             ResetActorInterface(ref _presenter);
             ResetActorInterface(ref _model);
             ResetActorInterface(ref _controller);
-            
+
             _active = false;
         }
 
@@ -54,9 +54,9 @@ namespace UnityActorSystem {
             if (_initialized) {
                 throw new InvalidOperationException("Already initialized.");
             }
-            
+
             _initialized = true;
-            
+
             Id = id;
         }
 
@@ -67,9 +67,9 @@ namespace UnityActorSystem {
             }
 
             _initialized = false;
-            
+
             Id = default;
-            
+
             ResetActorInterface(ref _receiver);
             ResetActorInterface(ref _view);
             ResetActorInterface(ref _presenter);
@@ -208,8 +208,7 @@ namespace UnityActorSystem {
         public void SetupStateMachine<TBlackboard>(Type startStateType, params ActorState<TKey, TBlackboard>[] states)
             where TBlackboard : class, IActorStateBlackboard, new() {
             var stateMachine = new ActorStateMachine<TKey, TBlackboard>(this);
-            stateMachine.SetStates(states);
-            stateMachine.ChangeState(startStateType);
+            stateMachine.SetStates(startStateType, states);
             _stateMachine = stateMachine;
         }
 

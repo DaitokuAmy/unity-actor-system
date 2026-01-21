@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityActorSystem;
 
@@ -13,28 +14,35 @@ namespace Sample.Application {
             /// <inheritdoc/>
             protected override void Enter() {
                 base.Enter();
-
+                
                 var vector = Blackboard.MoveVector;
                 Presenter.Move(vector.x, vector.y);
             }
 
             /// <inheritdoc/>
-            protected override void Update(IReadOnlyList<ActorCommand> commands, IReadOnlyList<ActorSignal> signals, float deltaTime) {
+            protected override Type Update(IReadOnlyList<ActorCommand> commands, IReadOnlyList<ActorSignal> signals, float deltaTime) {
+                var nextType = base.Update(commands, signals, deltaTime);
+                if (nextType != null) {
+                    return nextType;
+                }
+                
                 foreach (var command in commands) {
                     if (command is CharacterCommands.Move move) {
                         Presenter.Move(move.Value.x, move.Value.y);
-                        return;
+                    }
+
+                    if (command is CharacterCommands.Jump) {
+                        return typeof(Jump);
                     }
 
                     if (command is CharacterCommands.Attack) {
                         Blackboard.AttackIndex = 0;
-                        ChangeState<Attack>();
-                        return;
+                        return typeof(Attack);
                     }
                 }
 
-                // 移動が押されていなければ待機に戻る
-                ChangeState<Idle>();
+                // 特に入力されていなければ待機に戻る
+                return typeof(Idle);
             }
         }
     }

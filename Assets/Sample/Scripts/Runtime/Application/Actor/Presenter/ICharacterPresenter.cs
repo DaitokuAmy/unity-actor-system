@@ -1,11 +1,12 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Sample.Core;
 
 namespace Sample.Application {
     /// <summary>
     /// キャラ見た目反映用インターフェース
     /// </summary>
-    public interface ICharacterPresenter {
+    public interface ICharacterPresenter : IActorTransform {
         /// <summary>
         /// 待機状態に変更
         /// </summary>

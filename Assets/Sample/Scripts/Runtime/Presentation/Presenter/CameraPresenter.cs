@@ -2,23 +2,27 @@ using System;
 using Sample.Application;
 using Sample.Core;
 using UnityActorSystem;
+using UnityEngine;
 
 namespace Sample.Presentation {
     /// <summary>
     /// カメラ見た目反映用クラス
     /// </summary>
     public class CameraPresenter : ICameraPresenter, IActorPresenter<int> {
-        private IAimTarget _currentTarget;
+        private IActorTransform _baseTargetTransform;
 
         /// <summary>オーナーアクター</summary>
-        protected Actor<int> Owner { get; private set; }
+        private Actor<int> Owner { get; set; }
+        /// <summary>参照用のモデル</summary>
+        private IReadOnlyCameraModel Model { get; }
         /// <summary>制御用のビュー</summary>
-        protected CameraActorView ActorView { get; }
+        private CameraActorView ActorView { get; }
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public CameraPresenter(CameraActorView actorView) {
+        public CameraPresenter(IReadOnlyCameraModel model, CameraActorView actorView) {
+            Model = model;
             ActorView = actorView;
         }
 
@@ -43,15 +47,19 @@ namespace Sample.Presentation {
 
         /// <inheritdoc/>
         void IActorInterface<int>.Update(float deltaTime) {
-            // Targetの反映
-            if (_currentTarget != null) {
-                ActorView.SetTargetTransform(_currentTarget.Position, _currentTarget.Rotation);
+            // カメラ情報の反映
+            if (_baseTargetTransform != null) {
+                var position = _baseTargetTransform.Position;
+                var angleX = Model.AngleX;
+                var angleY = Model.AngleY;
+                var rotation = Quaternion.Euler(angleX, angleY, 0.0f);
+                ActorView.SetTargetTransform(position, rotation);
             }
         }
 
         /// <inheritdoc/>
-        void ICameraPresenter.ChangeTarget(IAimTarget aimTarget) {
-            _currentTarget = aimTarget;
+        void ICameraPresenter.ChangeBaseTarget(IActorTransform targetTransform) {
+            _baseTargetTransform = targetTransform;
         }
     }
 }

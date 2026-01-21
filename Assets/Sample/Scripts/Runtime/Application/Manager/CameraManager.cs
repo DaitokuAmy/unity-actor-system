@@ -11,13 +11,23 @@ namespace Sample.Application {
     /// </summary>
     public sealed class CameraManager : IDisposable {
         [Inject]
-        private readonly ActorManager<int> _actorManager;
+        private readonly IActorScheduler<int> _actorScheduler;
         [Inject]
         private readonly ITableAssetStore _tableAssetStore;
         [Inject]
         private readonly ICameraActorFactory _actorFactory;
-        
-        private int _nextId = 10001;
+
+        private ActorManager<int> _actorManager;
+
+        private int _nextId = 1;
+
+        /// <summary>
+        /// Inject処理
+        /// </summary>
+        [Inject]
+        public void Construct(IActorScheduler<int> actorScheduler) {
+            _actorManager = new ActorManager<int>(actorScheduler);
+        }
 
         /// <summary>
         /// 廃棄時処理
@@ -32,13 +42,14 @@ namespace Sample.Application {
             var actorId = _nextId++;
             var actor = _actorManager.CreateActor(actorId);
             var model = new CameraModel();
+            model.SetPrefabAssetKey(assetKey);
             actor.SetModel(model);
 
             await _actorFactory.CreateAsync(actor, model, ct);
 
             actor.SetupStateMachine(
-                typeof(CameraStates.Default),
-                new CameraStates.Default());
+                typeof(CameraStates.Tps),
+                new CameraStates.Tps());
 
             actor.SetActive(true);
             return actor;
@@ -59,6 +70,13 @@ namespace Sample.Application {
 
             _actorFactory.Destroy(actor, playerModel);
             _actorManager.DeleteActor(actor);
+        }
+
+        /// <summary>
+        /// アクターの取得
+        /// </summary>
+        public bool TryGetActor(int id, out Actor<int> actor) {
+            return _actorManager.TryGetActor(id, out actor);
         }
     }
 }

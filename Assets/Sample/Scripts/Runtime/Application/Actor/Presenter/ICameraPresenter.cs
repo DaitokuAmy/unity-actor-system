@@ -6,8 +6,8 @@ namespace Sample.Application {
     /// </summary>
     public interface ICameraPresenter {
         /// <summary>
-        /// 注視ターゲットの変更
+        /// 基準ターゲットの変更
         /// </summary>
-        void ChangeTarget(IAimTarget target);
+        void ChangeBaseTarget(IActorTransform targetTransform);
     }
 }

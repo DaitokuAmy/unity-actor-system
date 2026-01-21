@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityActorSystem;
@@ -16,13 +17,18 @@ namespace Sample.Application {
             /// <inheritdoc/>
             protected override void Enter() {
                 base.Enter();
-
+                
                 // ジャンプアクション再生
                 _task = Presenter.PlayJumpActionAsync(CancellationToken);
             }
 
             /// <inheritdoc/>
-            protected override void Update(IReadOnlyList<ActorCommand> commands, IReadOnlyList<ActorSignal> signals, float deltaTime) {
+            protected override Type Update(IReadOnlyList<ActorCommand> commands, IReadOnlyList<ActorSignal> signals, float deltaTime) {
+                var nextType = base.Update(commands, signals, deltaTime);
+                if (nextType != null) {
+                    return nextType;
+                }
+                
                 // foreach (var signal in signals) {
                 // }
                 //
@@ -31,8 +37,10 @@ namespace Sample.Application {
 
                 // 演出が終わったら待機に戻る
                 if (_task.Status != UniTaskStatus.Pending) {
-                    ChangeState<Idle>();
+                    return typeof(Idle);
                 }
+
+                return null;
             }
         }
     }
