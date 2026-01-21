@@ -1,7 +1,6 @@
 using System.Threading;
 using R3;
 using Sample.Application;
-using UnityEngine;
 using VContainer;
 
 namespace Sample.Presentation {
