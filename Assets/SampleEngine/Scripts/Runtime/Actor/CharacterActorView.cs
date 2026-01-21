@@ -62,7 +62,6 @@ namespace Sample.Presentation {
             _body.GameObject.SetActive(true);
 
             _motionBodyComponent.Play(_data.BaseController);
-            _materialBodyComponent.SetColor("Full", _data.BaseColor);
         }
 
         /// <inheritdoc/>
@@ -80,15 +79,8 @@ namespace Sample.Presentation {
         /// <inheritdoc/>
         // ReSharper disable once Unity.IncorrectMethodSignature
         void IActorInterface<int>.Update(float deltaTime) {
-            void SetFloatBlend(int id, float target, float t) {
-                var current = _animator.GetFloat(id);
-                _animator.SetFloat(id, Mathf.Lerp(current, target, t));
-            }
-
-            // Motion用プロパティ更新
-            SetFloatBlend(SpeedXPropId, _movementValue.x, 0.2f);
-            SetFloatBlend(SpeedZPropId, _movementValue.y, 0.2f);
-            SetFloatBlend(SpeedPropId, _movementValue.magnitude, 0.2f);
+            // AnimatorProperty更新
+            UpdateAnimatorProperties(deltaTime);
 
             // シーケンス更新
             _sequenceController.Update(deltaTime);
@@ -103,6 +95,16 @@ namespace Sample.Presentation {
             _movementValue.x = x;
             _movementValue.y = z;
             _movementValue *= _data.SpeedMultiplier;
+        }
+
+        /// <summary>
+        /// 正面の設定
+        /// </summary>
+        /// <param name="angleY">正面向きを表すY軸角度</param>
+        public void SetForward(float angleY) {
+            var eulerAngles = _transform.eulerAngles;
+            eulerAngles.y = angleY;
+            _transform.eulerAngles = eulerAngles;
         }
 
         /// <summary>
@@ -137,6 +139,25 @@ namespace Sample.Presentation {
             var duration = action.Clip.length;
             await UniTask.Delay((int)(duration * 1000), cancellationToken: ct);
             _motionBodyComponent.Play(_data.BaseController, action.OutBlend);
+        }
+
+        /// <summary>
+        /// AnimatorのProperty更新
+        /// </summary>
+        private void UpdateAnimatorProperties(float deltaTime) {
+            void SetFloatBlend(int id, float target, float t) {
+                var current = _animator.GetFloat(id);
+                _animator.SetFloat(id, Mathf.Lerp(current, target, t));
+            }
+            
+            // 移動値を相対方向に変換
+            var localMovement = new Vector3(_movementValue.x, 0.0f, _movementValue.y);
+            localMovement = _transform.InverseTransformVector(localMovement);
+
+            // Motion用プロパティ更新
+            SetFloatBlend(SpeedXPropId, localMovement.x, 0.2f);
+            SetFloatBlend(SpeedZPropId, localMovement.z, 0.2f);
+            SetFloatBlend(SpeedPropId, localMovement.magnitude, 0.2f);
         }
     }
 }

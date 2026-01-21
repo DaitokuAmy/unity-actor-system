@@ -15,5 +15,5 @@ MonoBehaviour:
   _records:
   - Id: 1
     Name: TestEnemy
-    PrefabAssetKey: ch001_00
-    DataAssetKey: ch001_01
+    PrefabAssetKey: ch001_01
+    DataAssetKey: ch001_00

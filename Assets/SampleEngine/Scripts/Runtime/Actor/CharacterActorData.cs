@@ -21,8 +21,6 @@ namespace SampleEngine {
         
         [Tooltip("アニメーションの基礎となるController")]
         public RuntimeAnimatorController BaseController;
-        [Tooltip("カラー情報")]
-        public Color BaseColor;
         [Tooltip("移動速度倍率")]
         public float SpeedMultiplier = 10.0f;
         

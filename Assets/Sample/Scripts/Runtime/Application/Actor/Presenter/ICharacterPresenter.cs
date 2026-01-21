@@ -1,12 +1,16 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Sample.Core;
+using UnityActorSystem;
 
 namespace Sample.Application {
     /// <summary>
     /// キャラ見た目反映用インターフェース
     /// </summary>
-    public interface ICharacterPresenter : IActorTransform {
+    public interface ICharacterPresenter : IActorTransform, IActorPresenter<int> {
+        /// <summary>正面方向の角度</summary>
+        float ForwardAngleY { get; }
+        
         /// <summary>
         /// 待機状態に変更
         /// </summary>
@@ -18,6 +22,12 @@ namespace Sample.Application {
         /// <param name="x">移動量</param>
         /// <param name="y">移動量</param>
         void Move(float x, float y);
+        
+        /// <summary>
+        /// 正面の設定
+        /// </summary>
+        /// <param name="angleY">正面の設定</param>
+        void SetForward(float angleY);
 
         /// <summary>
         /// 攻撃アクション再生

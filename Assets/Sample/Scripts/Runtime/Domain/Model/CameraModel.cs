@@ -58,8 +58,16 @@ namespace Sample.Domain {
         /// 角度の設定
         /// </summary>
         public void SetAngles(float angleX, float angleY) {
-            AngleX = MathF.Min(MathF.Max(angleX, 10.0f), 89.0f);
+            AngleX = MathF.Min(MathF.Max(angleX, 5.0f), 89.0f);
             AngleY = (angleY + 180.0f) % 360.0f - 180.0f;
+        }
+        
+        /// <summary>
+        /// 角度の初期値リセット
+        /// </summary>
+        public void ResetAngles(float angleY = 0.0f) {
+            AngleX = 5.0f;
+            AngleY = angleY;
         }
     }
 }

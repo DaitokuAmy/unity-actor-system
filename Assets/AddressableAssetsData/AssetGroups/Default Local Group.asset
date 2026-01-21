@@ -20,11 +20,6 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 0de40fdc06a455541aa85a821c68d74a
-    m_Address: Assets/SampleAssets/Actor/Character/ch001/Data/dat_act_ch001_01.asset
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 130fdf1eb1169c748bdf942385834b32
     m_Address: Assets/SampleAssets/Motion/Human/hum001/anim_hum001_standard_run_lp.fbx
     m_ReadOnly: 0
@@ -47,6 +42,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3c3afc4a8d080124a835194e6846a2f2
     m_Address: Assets/SampleAssets/Motion/Human/hum001/anim_hum001_left_strafe_lp.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4b4e4e44113f54b4491fe54f22f59382
+    m_Address: Assets/SampleAssets/Actor/Character/ch001/Prefabs/pfb_act_ch001_01.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

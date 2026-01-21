@@ -56,7 +56,7 @@ namespace Sample.Application {
             _cameraService.SetTargetCharacter(camActor.Id, playerActor.Id);
 
             // エネミー生成
-            for (var i = 0; i < 4; i++) {
+            for (var i = 0; i < 8; i++) {
                 await _characterManager.CreateEnemyAsync(1, linkedCt);
             }
         }

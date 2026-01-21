@@ -14,7 +14,7 @@ namespace Sample.Application {
             /// <inheritdoc/>
             protected override void Enter() {
                 base.Enter();
-                
+
                 if (Blackboard.BaseTargetTransform != null) {
                     Model.SetTargetId(Blackboard.BaseTargetTransform.OwnerId);
                     Presenter.ChangeBaseTarget(Blackboard.BaseTargetTransform);
@@ -27,16 +27,25 @@ namespace Sample.Application {
                 if (nextType != null) {
                     return nextType;
                 }
-                
-                foreach (var command in commands) {
-                    if (command is CameraCommands.Rotate rotate) {
-                        Model.SetAngles(Model.AngleX + rotate.DeltaAngleX, Model.AngleY + rotate.DeltaAngleY);
-                    }
 
+                foreach (var command in commands) {
                     if (command is CameraCommands.ChangeTarget changeTarget) {
                         Blackboard.BaseTargetTransform = changeTarget.Target;
                         Model.SetTargetId(changeTarget.Target.OwnerId);
                         Presenter.ChangeBaseTarget(changeTarget.Target);
+                    }
+
+                    if (command is CameraCommands.ResetAngle) {
+                        var angleY = 0.0f;
+                        if (Blackboard.BaseTargetTransform != null) {
+                            angleY = Blackboard.BaseTargetTransform.Rotation.eulerAngles.y;
+                        }
+
+                        Model.ResetAngles(angleY);
+                    }
+
+                    if (command is CameraCommands.Rotate rotate) {
+                        Model.SetAngles(Model.AngleX + rotate.DeltaAngleX, Model.AngleY + rotate.DeltaAngleY);
                     }
                 }
 

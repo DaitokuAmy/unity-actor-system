@@ -8,7 +8,8 @@ namespace Sample.Application {
         /// </summary>
         private enum CommandOrder {
             ChangeTarget = 10,
-            Rotate = 10,
+            ResetAngle = 11,
+            Rotate = 20,
         }
     }
 }

@@ -1,6 +1,6 @@
-using Unity.Mathematics;
+using UnityEngine;
 
-namespace Sample.Core {
+namespace Sample.Application {
     /// <summary>
     /// ActorのTransformを表すためのインターフェース
     /// </summary>
@@ -8,8 +8,8 @@ namespace Sample.Core {
         /// <summary>所有者Id</summary>
         int OwnerId { get; }
         /// <summary>座標</summary>
-        float3 Position { get; }
+        Vector3 Position { get; }
         /// <summary>向き</summary>
-        quaternion Rotation { get; }
+        Quaternion Rotation { get; }
     }
 }

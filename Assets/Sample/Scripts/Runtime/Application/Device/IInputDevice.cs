@@ -15,6 +15,8 @@ namespace Sample.Application {
         Observable<Unit> AttackSubject { get; }
         /// <summary>ジャンプ通知</summary>
         Observable<Unit> JumpSubject { get; }
+        /// <summary>カメラリセット通知</summary>
+        Observable<Unit> ResetCameraSubject { get; }
 
         /// <summary>
         /// 更新処理

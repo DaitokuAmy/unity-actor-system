@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityActorSystem;
+using UnityEngine;
 
 namespace Sample.Application {
     /// <summary>
@@ -26,9 +27,14 @@ namespace Sample.Application {
                     return nextType;
                 }
                 
+                // 向きを向き続ける
+                UpdateForward(deltaTime);
+                
                 foreach (var command in commands) {
                     if (command is CharacterCommands.Move move) {
+                        Blackboard.MoveVector = move.Value;
                         Presenter.Move(move.Value.x, move.Value.y);
+                        return null;
                     }
 
                     if (command is CharacterCommands.Jump) {
@@ -43,6 +49,25 @@ namespace Sample.Application {
 
                 // 特に入力されていなければ待機に戻る
                 return typeof(Idle);
+            }
+
+            /// <summary>
+            /// 正面方向の更新
+            /// </summary>
+            private void UpdateForward(float deltaTime) {
+                var vector = Blackboard.MoveVector;
+                if (Mathf.Approximately(vector.x, 0.0f) && Mathf.Approximately(vector.y, 0.0f)) {
+                    return;
+                }
+                
+                var current = Presenter.ForwardAngleY;
+                var target = Mathf.Atan2(vector.x, vector.y) * Mathf.Rad2Deg;
+                if (Mathf.Approximately(current, target)) {
+                    return;
+                }
+
+                var next = Mathf.MoveTowardsAngle(current, target, 90.0f * deltaTime);
+                Presenter.SetForward(next);
             }
         }
     }
