@@ -19,6 +19,12 @@ MonoBehaviour:
     SequenceClip: {fileID: 11400000, guid: fc4c7f34eec76cb4489c136eba831413, type: 2}
     InBlend: 0.2
     OutBlend: 0.2
+  KnockbackAction:
+    Controller: {fileID: 9100000, guid: a2676e1d5fae175459831977bdab25c4, type: 2}
+    SequenceClip: {fileID: 11400000, guid: 1d39c9881b098c644970d7a57db7f4b2, type: 2}
+    StartState: Knockback
+    InBlend: 0.2
+    OutBlend: 0.2
   AttackActions:
   - Clip: {fileID: -203655887218126122, guid: 9172444f06386364bad9f7db683c4f2e, type: 3}
     SequenceClip: {fileID: 11400000, guid: adbe46e4e60b858468ecdae873e97407, type: 2}

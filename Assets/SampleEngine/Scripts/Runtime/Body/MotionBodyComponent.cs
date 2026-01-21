@@ -19,9 +19,9 @@ namespace SampleEngine {
         private float _blendTimer = 0.0f;
         private Dictionary<RuntimeAnimatorController, AnimatorControllerPlayable> _animatorControllerPlayableCache = new();
         private Dictionary<AnimationClip, AnimationClipPlayable> _animationClipPlayableCache = new();
+        private List<Playable> _deleteRequestPlayables = new();
 
         /// <inheritdoc/>
-        // ReSharper disable once Unity.IncorrectMethodSignature
         protected override void Tick(float deltaTime) {
             // Blend処理
             if (_blendTimer >= 0.0f) {
@@ -31,6 +31,24 @@ namespace SampleEngine {
                     var target = i == _currentPortIndex ? 1.0f : 0.0f;
                     var weight = Mathf.Lerp(_mixer.GetInputWeight(i), target, t);
                     _mixer.SetInputWeight(i, weight);
+                }
+            }
+
+            // 削除予定のPlayableが未使用なら消す
+            for (var i = _deleteRequestPlayables.Count - 1; i >= 0; i--) {
+                var targetPlayable = _deleteRequestPlayables[i];
+                var execute = true;
+                for (var j = 0; j < MixerPortCount; j++) {
+                    var playable = _mixer.GetInput(j);
+                    if (targetPlayable.Equals(playable)) {
+                        execute = false;
+                        break;
+                    }
+                }
+
+                if (execute) {
+                    targetPlayable.Destroy();
+                    _deleteRequestPlayables.RemoveAt(i);
                 }
             }
         }
@@ -59,13 +77,19 @@ namespace SampleEngine {
         /// キャッシュクリア
         /// </summary>
         public void ClearCaches() {
-            foreach (var val in _animatorControllerPlayableCache.Values) {
-                val.Destroy();
+            foreach (var playable in _deleteRequestPlayables) {
+                playable.Destroy();
+            }
+
+            _deleteRequestPlayables.Clear();
+
+            foreach (var playable in _animatorControllerPlayableCache.Values) {
+                playable.Destroy();
             }
 
             _animatorControllerPlayableCache.Clear();
-            foreach (var val in _animationClipPlayableCache.Values) {
-                val.Destroy();
+            foreach (var playable in _animationClipPlayableCache.Values) {
+                playable.Destroy();
             }
 
             _animationClipPlayableCache.Clear();
@@ -74,10 +98,14 @@ namespace SampleEngine {
         /// <summary>
         /// AnimatorControllerベースでの再生
         /// </summary>
-        public AnimatorControllerPlayable Play(RuntimeAnimatorController controller, float blendDuration = 0.0f) {
+        public AnimatorControllerPlayable Play(RuntimeAnimatorController controller, float blendDuration = 0.0f, bool clearCache = false) {
             if (!_animatorControllerPlayableCache.TryGetValue(controller, out var playable)) {
                 playable = AnimatorControllerPlayable.Create(_playableGraph, controller);
-                playable.SetSpeed(1.0f);
+                _animatorControllerPlayableCache[controller] = playable;
+            }
+            else if (clearCache) {
+                _deleteRequestPlayables.Add(playable);
+                playable = AnimatorControllerPlayable.Create(_playableGraph, controller);
                 _animatorControllerPlayableCache[controller] = playable;
             }
 
@@ -92,7 +120,6 @@ namespace SampleEngine {
         public AnimationClipPlayable Play(AnimationClip clip, float blendDuration = 0.0f) {
             if (!_animationClipPlayableCache.TryGetValue(clip, out var playable)) {
                 playable = AnimationClipPlayable.Create(_playableGraph, clip);
-                playable.SetSpeed(1.0f);
                 _animationClipPlayableCache[clip] = playable;
             }
 
@@ -105,9 +132,14 @@ namespace SampleEngine {
         /// 生成済みPlayableでの再生
         /// </summary>
         public void Play(Playable playable, float blendDuration = 0.0f) {
+            var prevIndex = _currentPortIndex;
             _currentPortIndex = (_currentPortIndex + 1) % MixerPortCount;
             _mixer.DisconnectInput(_currentPortIndex);
             _mixer.ConnectInput(_currentPortIndex, playable, 0, 0.0f);
+            if (_mixer.GetInput(prevIndex).IsValid()) {
+                _mixer.SetInputWeight(prevIndex, 1.0f);
+            }
+
             _blendTimer = blendDuration;
         }
     }

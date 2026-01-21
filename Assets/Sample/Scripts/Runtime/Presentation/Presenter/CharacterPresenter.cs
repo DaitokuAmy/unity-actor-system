@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using Sample.Application;
 using UnityActorSystem;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Sample.Presentation {
     /// <summary>

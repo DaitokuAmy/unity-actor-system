@@ -5,6 +5,8 @@ using Cysharp.Threading.Tasks;
 using SampleEngine;
 using UnityActorSystem;
 using UnityEngine;
+using UnityEngine.Animations;
+using UnityEngine.Playables;
 using Object = UnityEngine.Object;
 
 namespace Sample.Presentation {
@@ -14,9 +16,37 @@ namespace Sample.Presentation {
     public class CharacterActorView : IActorView<int> {
         private static readonly int SpeedXPropId = Animator.StringToHash("speed.x");
         private static readonly int SpeedZPropId = Animator.StringToHash("speed.z");
+        private static readonly int DirectionXPropId = Animator.StringToHash("direction.x");
+        private static readonly int DirectionZPropId = Animator.StringToHash("direction.z");
         private static readonly int SpeedPropId = Animator.StringToHash("speed");
         private static readonly int SpeedScalePropId = Animator.StringToHash("speed_scale");
         private static readonly int IsFallingPropId = Animator.StringToHash("is_falling");
+        private static readonly int LastTagHash = Animator.StringToHash("Last");
+
+        private interface IPlayableSetup<in TPlayable>
+            where TPlayable : IPlayable {
+            void Apply(TPlayable playable);
+        }
+
+        private readonly struct NullSetup<TPlayable> : IPlayableSetup<TPlayable>
+            where TPlayable : IPlayable {
+            void IPlayableSetup<TPlayable>.Apply(TPlayable playable) { }
+        }
+
+        private readonly struct KnockbackSetup : IPlayableSetup<AnimatorControllerPlayable> {
+            private readonly float _directionX;
+            private readonly float _directionZ;
+
+            public KnockbackSetup(float directionX, float directionZ) {
+                _directionX = directionX;
+                _directionZ = directionZ;
+            }
+
+            void IPlayableSetup<AnimatorControllerPlayable>.Apply(AnimatorControllerPlayable playable) {
+                playable.SetFloat(DirectionXPropId, _directionX);
+                playable.SetFloat(DirectionZPropId, _directionZ);
+            }
+        }
 
         private readonly Body _body;
         private readonly CharacterActorData _data;
@@ -117,6 +147,8 @@ namespace Sample.Presentation {
         /// <summary>
         /// 攻撃再生
         /// </summary>
+        /// <param name="index">攻撃Index</param>
+        /// <param name="ct">非同期キャンセル用</param>
         public UniTask PlayAttackAsync(int index, CancellationToken ct) {
             var actions = _data.AttackActions;
             if (index < 0 || index >= actions.Length) {
@@ -130,8 +162,19 @@ namespace Sample.Presentation {
         /// <summary>
         /// ジャンプ再生
         /// </summary>
+        /// <param name="ct">非同期キャンセル用</param>
         public UniTask PlayJumpAsync(CancellationToken ct) {
             return PlayClipActionAsync(_data.JumpAction, ct);
+        }
+
+        /// <summary>
+        /// ノックバック再生
+        /// </summary>
+        /// <param name="damageDirection">ダメージ向き(その方向にノックバックする)</param>
+        /// <param name="ct">非同期キャンセル用</param>
+        public UniTask PlayKnockbackAsync(Vector3 damageDirection, CancellationToken ct) {
+            var localDir = _transform.InverseTransformDirection(damageDirection);
+            return PlayControllerActionAsync(_data.KnockbackAction, new KnockbackSetup(localDir.x, localDir.z), ct);
         }
 
         /// <summary>
@@ -143,9 +186,49 @@ namespace Sample.Presentation {
                 _sequenceController.Play(action.SequenceClip);
             }
 
-            var duration = action.Clip.length;
+            var duration = action.Clip.length - action.OutBlend;
             await UniTask.Delay((int)(duration * 1000), cancellationToken: ct);
             _motionBodyComponent.Play(_data.BaseController, action.OutBlend);
+        }
+
+        /// <summary>
+        /// 汎用AnimatorControllerアクションの再生
+        /// </summary>
+        private async UniTask PlayControllerActionAsync<TSetup>(CharacterActorData.ControllerActionInfo action, TSetup setup, CancellationToken ct)
+            where TSetup : struct, IPlayableSetup<AnimatorControllerPlayable> {
+            var playable = _motionBodyComponent.Play(action.Controller, action.InBlend, true);
+            setup.Apply(playable);
+
+            if (action.SequenceClip != null) {
+                _sequenceController.Play(action.SequenceClip);
+            }
+
+            while (true) {
+                ct.ThrowIfCancellationRequested();
+
+                var info = playable.GetCurrentAnimatorStateInfo(0);
+                if (info.tagHash != LastTagHash) {
+                    await UniTask.Yield(PlayerLoopTiming.Update);
+                    continue;
+                }
+
+                var duration = info.length;
+                var currentTime = info.normalizedTime * duration;
+                if (currentTime >= (duration - action.OutBlend)) {
+                    break;
+                }
+
+                await UniTask.Yield(PlayerLoopTiming.Update);
+            }
+
+            _motionBodyComponent.Play(_data.BaseController, action.OutBlend);
+        }
+
+        /// <summary>
+        /// 汎用AnimatorControllerアクションの再生
+        /// </summary>
+        private UniTask PlayControllerActionAsync(CharacterActorData.ControllerActionInfo action, CancellationToken ct) {
+            return PlayControllerActionAsync(action, default(NullSetup<AnimatorControllerPlayable>), ct);
         }
 
         /// <summary>
