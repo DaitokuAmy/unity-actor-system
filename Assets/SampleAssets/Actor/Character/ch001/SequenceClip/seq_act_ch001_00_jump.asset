@@ -27,11 +27,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d4010d2a2d071d4fb2cb1760a21b80e, type: 3}
   m_Name: TestRangeSequenceEvent
   m_EditorClassIdentifier: SampleEngine.Runtime::SampleEngine.TestRangeSequenceEvent
-  label: "\u30C6\u30B9\u30C8\u30E9\u30D9\u30EB"
+  label: "\u30ED\u30B0\u51FA\u529B"
   active: 1
   enterTime: 0
   exitTime: 0.73333335
-  Label: Jump
+  Text: Hoge
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0

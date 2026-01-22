@@ -13,7 +13,7 @@ namespace Sample.Presentation {
     /// <summary>
     /// キャラ制御用ビュー
     /// </summary>
-    public class CharacterActorView : IActorView<int> {
+    public class CharacterActorView : IActorView<int>, IReceiveCollider {
         private static readonly int SpeedXPropId = Animator.StringToHash("speed.x");
         private static readonly int SpeedZPropId = Animator.StringToHash("speed.z");
         private static readonly int DirectionXPropId = Animator.StringToHash("direction.x");
@@ -61,6 +61,13 @@ namespace Sample.Presentation {
 
         private Vector2 _movementValue;
         private Vector3 _aimPoint;
+
+        /// <inheritdoc/>
+        Vector3 IReceiveCollider.Bottom => Body.Position;
+        /// <inheritdoc/>
+        float IReceiveCollider.Radius => 1.0f;
+        /// <inheritdoc/>
+        float IReceiveCollider.Height => 2.0f;
 
         /// <summary>Bodyの参照</summary>
         public Body Body => _body;

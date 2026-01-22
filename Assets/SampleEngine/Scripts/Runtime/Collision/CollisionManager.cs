@@ -54,17 +54,17 @@ namespace SampleEngine {
         /// <summary>
         /// 衝突開始
         /// </summary>
-        void OnCollisionEnter(in CollisionEvent e);
+        void OnCollisionEnter(in CollisionEvent evt);
 
         /// <summary>
         /// 衝突中
         /// </summary>
-        void OnCollisionStay(in CollisionEvent e);
+        void OnCollisionStay(in CollisionEvent evt);
 
         /// <summary>
         /// 衝突終了
         /// </summary>
-        void OnCollisionExit(in CollisionEvent e);
+        void OnCollisionExit(in CollisionEvent evt);
     }
 
     /// <summary>

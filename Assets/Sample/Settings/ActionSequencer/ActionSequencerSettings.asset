@@ -16,6 +16,9 @@ MonoBehaviour:
   - fullName: SampleEngine.CombableRangeSequenceEvent
     label: "\u30B3\u30F3\u30DC\u53EF\u80FD"
     color: {r: 0.99333334, g: 1, b: 0.6, a: 1}
-  - fullName: SampleEngine.TestRangeSequenceEvent
-    label: "\u30C6\u30B9\u30C8\u30E9\u30D9\u30EB"
+  - fullName: SampleEngine.LogRangeSequenceEvent
+    label: "\u30ED\u30B0\u51FA\u529B"
     color: {r: 0.58431375, g: 0.5019608, b: 1, a: 1}
+  - fullName: SampleEngine.AttackRangeSequenceEvent
+    label: "\u653B\u6483\u5224\u5B9A"
+    color: {r: 1, g: 0.6098693, b: 0.5019608, a: 1}

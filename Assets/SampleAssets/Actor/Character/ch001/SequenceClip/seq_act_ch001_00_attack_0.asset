@@ -16,6 +16,7 @@ MonoBehaviour:
   sequenceEvents:
   - {fileID: -3425220644284697549}
   - {fileID: 3771841574145727664}
+  - {fileID: 205834843455947101}
 --- !u!114 &-3425220644284697549
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -28,11 +29,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d4010d2a2d071d4fb2cb1760a21b80e, type: 3}
   m_Name: TestRangeSequenceEvent
   m_EditorClassIdentifier: SampleEngine.Runtime::SampleEngine.TestRangeSequenceEvent
-  label: "\u30C6\u30B9\u30C8\u30E9\u30D9\u30EB"
+  label: "\u30ED\u30B0\u51FA\u529B"
   active: 1
   enterTime: 1
   exitTime: 1.6333333
-  Label: "\u30B3\u30F3\u30DC\u53EF\u80FD"
+  Text: Hoge
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -50,6 +51,25 @@ MonoBehaviour:
   frameRate: 60
   filterData: {fileID: 0}
   includeClips: []
+--- !u!114 &205834843455947101
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6817584f28103224ea2dcf790d51d2ac, type: 3}
+  m_Name: AttackRangeSequenceEvent
+  m_EditorClassIdentifier: SampleEngine.Runtime::SampleEngine.AttackRangeSequenceEvent
+  label: "\u653B\u6483\u5224\u5B9A"
+  active: 1
+  enterTime: 0.75
+  exitTime: 0.93333334
+  OffsetPositon: {x: 0, y: 1, z: 1}
+  Radius: 3
+  Constraint: 0
 --- !u!114 &3771841574145727664
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -23,6 +23,8 @@ namespace Sample.Application {
         private readonly CameraService _cameraService;
         [Inject]
         private readonly IInputDevice _inputDevice;
+        [Inject]
+        private readonly IWorldCollisionService _worldCollisionService;
 
         private bool _started;
         private CancellationTokenSource _cancellationTokenSource;
@@ -45,13 +47,13 @@ namespace Sample.Application {
 
             // マスター読み込み
             await _tableAssetStore.LoadTablesAsync(linkedCt);
-            
+
             // カメラ生成
             var camActor = await _cameraManager.CreateAsync("cam001", linkedCt);
 
             // プレイヤー生成
             var playerActor = await _characterManager.CreatePlayerAsync(1, linkedCt);
-            
+
             // カメラターゲット初期化
             _cameraService.SetTargetCharacter(camActor.Id, playerActor.Id);
 
@@ -101,6 +103,7 @@ namespace Sample.Application {
             }
 
             var deltaTime = Time.deltaTime;
+            _worldCollisionService.Update(deltaTime);
             _actorScheduler.PostUpdate(deltaTime);
             _bodyScheduler.LateUpdate(deltaTime);
         }
