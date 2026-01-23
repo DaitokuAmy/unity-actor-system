@@ -8,16 +8,16 @@ namespace Sample.Application {
         /// <summary>
         /// 衝突開始
         /// </summary>
-        void OnCollisionEnter(int hitActorId, int receiveActorId, Vector3 contactPoint, Vector3 contactNormal);
+        void OnCollisionEnter(int hitActorId, int receiveActorId, Vector3 contactPoint, Vector3 contactNormal, object customData);
 
         /// <summary>
         /// 衝突中
         /// </summary>
-        void OnCollisionStay(int hitActorId, int receiveActorId, Vector3 contactPoint, Vector3 contactNormal);
+        void OnCollisionStay(int hitActorId, int receiveActorId, Vector3 contactPoint, Vector3 contactNormal, object customData);
 
         /// <summary>
         /// 衝突終了
         /// </summary>
-        void OnCollisionExit(int hitActorId, int receiveActorId);
+        void OnCollisionExit(int hitActorId, int receiveActorId, object customData);
     }
 }

@@ -39,7 +39,7 @@ namespace Sample.Infrastructure {
                 return;
             }
 
-            listener?.OnCollisionEnter(hitActorId, receiveActorId, evt.contactPoint, evt.contactNormal);
+            listener?.OnCollisionEnter(hitActorId, receiveActorId, evt.contactPoint, evt.contactNormal, evt.customData);
         }
 
         /// <inheritdoc/>
@@ -56,7 +56,7 @@ namespace Sample.Infrastructure {
                 return;
             }
 
-            listener?.OnCollisionStay(hitActorId, receiveActorId, evt.contactPoint, evt.contactNormal);
+            listener?.OnCollisionStay(hitActorId, receiveActorId, evt.contactPoint, evt.contactNormal, evt.customData);
         }
 
         /// <inheritdoc/>
@@ -73,7 +73,7 @@ namespace Sample.Infrastructure {
                 return;
             }
 
-            listener?.OnCollisionExit(hitActorId, receiveActorId);
+            listener?.OnCollisionExit(hitActorId, receiveActorId, evt.customData);
         }
 
         /// <inheritdoc/>
@@ -96,8 +96,8 @@ namespace Sample.Infrastructure {
         }
 
         /// <inheritdoc/>
-        int IWorldCollisionService.RegisterHit(int actorId, ISphereHitCollider collider, int layerMask) {
-            var hitId = _hitDetectionEngine.RegisterHit(collider, layerMask);
+        int IWorldCollisionService.RegisterHit(int actorId, ISphereHitCollider collider, int layerMask, object customData) {
+            var hitId = _hitDetectionEngine.RegisterHit(collider, layerMask, customData);
             _hidIdToActorIds[hitId] = actorId;
             if (!_actorIdToHitIds.TryGetValue(actorId, out var list)) {
                 list = _listPool.Get();
@@ -109,8 +109,8 @@ namespace Sample.Infrastructure {
         }
 
         /// <inheritdoc/>
-        int IWorldCollisionService.RegisterHit(int actorId, IBoxHitCollider collider, int layerMask) {
-            var hitId = _hitDetectionEngine.RegisterHit(collider, layerMask);
+        int IWorldCollisionService.RegisterHit(int actorId, IBoxHitCollider collider, int layerMask, object customData) {
+            var hitId = _hitDetectionEngine.RegisterHit(collider, layerMask, customData);
             _hidIdToActorIds[hitId] = actorId;
             if (!_actorIdToHitIds.TryGetValue(actorId, out var list)) {
                 list = _listPool.Get();

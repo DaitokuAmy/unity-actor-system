@@ -2,6 +2,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Sample.Core;
 using UnityActorSystem;
+using UnityEngine;
 
 namespace Sample.Application {
     /// <summary>
@@ -41,5 +42,12 @@ namespace Sample.Application {
         /// </summary>
         /// <param name="ct">キャンセル用トークン</param>
         UniTask PlayJumpActionAsync(CancellationToken ct);
+        
+        /// <summary>
+        /// ノックバックアクション再生
+        /// </summary>
+        /// <param name="damageDirection">ダメージ向き</param>
+        /// <param name="ct">キャンセル用トークン</param>
+        UniTask PlayKnockbackActionAsync(Vector3 damageDirection, CancellationToken ct);
     }
 }

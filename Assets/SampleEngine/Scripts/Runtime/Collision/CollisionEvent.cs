@@ -13,12 +13,15 @@ namespace SampleEngine {
         public readonly Vector3 contactPoint;
         /// <summary>衝突向き</summary>
         public readonly Vector3 contactNormal;
+        /// <summary>Hit側に設定されたカスタムデータ</summary>
+        public readonly object customData;
 
-        public CollisionEvent(int hitId, int receiveId, Vector3 contactPoint, Vector3 contactNormal) {
+        public CollisionEvent(int hitId, int receiveId, Vector3 contactPoint, Vector3 contactNormal, object customData) {
             this.hitId = hitId;
             this.receiveId = receiveId;
             this.contactPoint = contactPoint;
             this.contactNormal = contactNormal;
+            this.customData = customData;
         }
     }
 }

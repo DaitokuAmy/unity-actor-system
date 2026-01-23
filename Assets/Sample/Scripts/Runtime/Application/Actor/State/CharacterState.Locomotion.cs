@@ -29,6 +29,13 @@ namespace Sample.Application {
                 
                 // 向きを向き続ける
                 UpdateForward(deltaTime);
+
+                foreach (var signal in signals) {
+                    if (signal is CharacterSignals.Hit hit) {
+                        Blackboard.KnockbackDirection = hit.AttackParams.direction;
+                        return typeof(Knockback);
+                    }
+                }
                 
                 foreach (var command in commands) {
                     if (command is CharacterCommands.Move move) {

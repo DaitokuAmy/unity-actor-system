@@ -52,7 +52,8 @@ namespace Sample.Application {
                 new CharacterStates.Idle(),
                 new CharacterStates.Locomotion(),
                 new CharacterStates.Attack(),
-                new CharacterStates.Jump());
+                new CharacterStates.Jump(),
+                new CharacterStates.Knockback());
 
             actor.SetActive(true);
             return actor;
@@ -76,7 +77,8 @@ namespace Sample.Application {
                 new CharacterStates.Idle(),
                 new CharacterStates.Locomotion(),
                 new CharacterStates.Attack(),
-                new CharacterStates.Jump());
+                new CharacterStates.Jump(),
+                new CharacterStates.Knockback());
 
             actor.SetActive(true);
             return actor;

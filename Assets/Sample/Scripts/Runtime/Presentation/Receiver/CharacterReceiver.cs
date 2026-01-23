@@ -14,6 +14,8 @@ namespace Sample.Presentation {
     public class CharacterReceiver : IActorReceiver<int>, IWorldCollisionListener {
         [Inject]
         private IWorldCollisionService _worldCollisionService;
+        [Inject]
+        private ICharacterDamageInputPort _damageInputPort;
 
         private CompositeDisposable _compositeDisposable;
         private int _receiveCollisionId;
@@ -80,17 +82,26 @@ namespace Sample.Presentation {
         void IActorInterface<int>.Update(float deltaTime) { }
 
         /// <inheritdoc/>
-        void IWorldCollisionListener.OnCollisionEnter(int hitActorId, int receiveActorId, Vector3 contactPoint, Vector3 contactNormal) {
+        void IWorldCollisionListener.OnCollisionEnter(int hitActorId, int receiveActorId, Vector3 contactPoint, Vector3 contactNormal, object customData) {
             Debug.Log($"OnCollisionEnter: {hitActorId} -> {receiveActorId} ({contactPoint}, {contactNormal})");
+            
+            // 攻撃パラメータを取得
+            if (customData is AttackParams attackParams) {
+                // 攻撃ヒット処理を実行
+                _damageInputPort.HitAttack(hitActorId, receiveActorId, contactPoint, contactNormal, attackParams);
+            }
+            
+            // シグナルとして通知
+            //Owner.CreateSignal<>()
         }
 
         /// <inheritdoc/>
-        void IWorldCollisionListener.OnCollisionStay(int hitActorId, int receiveActorId, Vector3 contactPoint, Vector3 contactNormal) {
+        void IWorldCollisionListener.OnCollisionStay(int hitActorId, int receiveActorId, Vector3 contactPoint, Vector3 contactNormal, object customData) {
             Debug.Log($"OnCollisionStay: {hitActorId} -> {receiveActorId} ({contactPoint}, {contactNormal})");
         }
 
         /// <inheritdoc/>
-        void IWorldCollisionListener.OnCollisionExit(int hitActorId, int receiveActorId) {
+        void IWorldCollisionListener.OnCollisionExit(int hitActorId, int receiveActorId, object customData) {
             Debug.Log($"OnCollisionExit: {hitActorId} -> {receiveActorId}");
         }
 

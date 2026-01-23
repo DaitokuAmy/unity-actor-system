@@ -42,6 +42,8 @@ namespace Sample.Lifecycle {
             builder.Register<CharacterManager>(Lifetime.Singleton);
             builder.Register<CameraManager>(Lifetime.Singleton);
             builder.Register<CameraService>(Lifetime.Singleton);
+            builder.Register<CharacterService>(Lifetime.Singleton)
+                .As<ICharacterDamageInputPort>();
             builder.Register<IWorldCollisionService, WorldCollisionService>(Lifetime.Singleton);
             builder.Register<IInputDevice>(resolver => {
                 var device = new InputDevice(_playerInput);

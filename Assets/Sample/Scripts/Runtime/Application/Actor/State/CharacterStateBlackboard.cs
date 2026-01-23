@@ -10,5 +10,7 @@ namespace Sample.Application {
         public Vector2 MoveVector { get; set; }
         /// <summary>攻撃Index</summary>
         public int AttackIndex { get; set; }
+        /// <summary>ノックバック方向</summary>
+        public Vector3 KnockbackDirection { get; set; }
     }
 }

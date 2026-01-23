@@ -7,8 +7,9 @@ namespace Sample.Application {
         /// 処理順
         /// </summary>
         private enum SignalOrder {
-            BeginCombable = 10,
-            EndCombable = 11,
+            Hit = 10,
+            BeginCombable = 20,
+            EndCombable = 21,
         }
     }
 }

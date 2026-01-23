@@ -78,5 +78,10 @@ namespace Sample.Presentation {
         UniTask ICharacterPresenter.PlayJumpActionAsync(CancellationToken ct) {
             return ActorView.PlayJumpAsync(ct);
         }
+
+        /// <inheritdoc/>
+        UniTask ICharacterPresenter.PlayKnockbackActionAsync(Vector3 damageDirection, CancellationToken ct) {
+            return ActorView.PlayKnockbackAsync(damageDirection, ct);
+        }
     }
 }

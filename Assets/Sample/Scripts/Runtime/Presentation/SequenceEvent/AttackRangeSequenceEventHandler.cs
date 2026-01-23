@@ -27,7 +27,7 @@ namespace Sample.Presentation {
             _constraint = sequenceEvent.Constraint;
             _offset = _constraint ? sequenceEvent.OffsetPositon : _baseTransform.TransformPoint(sequenceEvent.OffsetPositon);
             _radius = sequenceEvent.Radius;
-            _collisionId = _worldCollisionService.RegisterHit(_actorId, this, _layerMask);
+            _collisionId = _worldCollisionService.RegisterHit(_actorId, this, _layerMask, CreateAttackParams());
         }
 
         /// <inheritdoc/>
@@ -48,6 +48,13 @@ namespace Sample.Presentation {
             _actorId = actorId;
             _baseTransform = baseTransform;
             _layerMask = layerMask;
+        }
+
+        /// <summary>
+        /// 攻撃パラメータの生成
+        /// </summary>
+        private AttackParams CreateAttackParams() {
+            return new AttackParams { direction = _baseTransform.forward };
         }
     }
 }

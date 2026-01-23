@@ -132,6 +132,7 @@ namespace SampleEngine {
             public int id;
             public TCollider collider;
             public int layerMask;
+            public object customData;
         }
 
         /// <summary>
@@ -150,10 +151,12 @@ namespace SampleEngine {
         private readonly struct PairKey : IEquatable<PairKey> {
             public readonly int hitId;
             public readonly int receiveId;
+            public readonly object customData;
 
-            public PairKey(int hitId, int receiveId) {
+            public PairKey(int hitId, int receiveId, object customData) {
                 this.hitId = hitId;
                 this.receiveId = receiveId;
+                this.customData = customData;
             }
 
             /// <inheritdoc/>
@@ -178,6 +181,7 @@ namespace SampleEngine {
         private readonly List<HitEntry<ISphereHitCollider>> _sphereHitEntries = new();
         private readonly List<HitEntry<IBoxHitCollider>> _boxHitEntries = new();
         private readonly List<ReceiveEntry> _receiveEntries = new();
+        private readonly List<object> _customDataList = new();
 
         private readonly HashSet<PairKey> _prevPariKeys = new();
         private readonly HashSet<PairKey> _currentPariKeys = new();
@@ -252,9 +256,10 @@ namespace SampleEngine {
         /// </summary>
         /// <param name="collider">ヒットコリジョン情報</param>
         /// <param name="layerMask">判定レイヤーマスク</param>
-        public int RegisterHit(ISphereHitCollider collider, int layerMask = ~0) {
+        /// <param name="customData">ヒット検出時に届くカスタムデータ</param>
+        public int RegisterHit(ISphereHitCollider collider, int layerMask = ~0, object customData = null) {
             var id = _nextHitId++;
-            _sphereHitEntries.Add(new HitEntry<ISphereHitCollider> { id = id, collider = collider, layerMask = layerMask });
+            _sphereHitEntries.Add(new HitEntry<ISphereHitCollider> { id = id, collider = collider, layerMask = layerMask, customData = customData  });
             return id;
         }
 
@@ -263,9 +268,10 @@ namespace SampleEngine {
         /// </summary>
         /// <param name="collider">ヒットコリジョン情報</param>
         /// <param name="layerMask">判定レイヤーマスク</param>
-        public int RegisterHit(IBoxHitCollider collider, int layerMask = ~0) {
+        /// <param name="customData">ヒット検出時に届くカスタムデータ</param>
+        public int RegisterHit(IBoxHitCollider collider, int layerMask = ~0, object customData = null) {
             var id = _nextHitId++;
-            _boxHitEntries.Add(new HitEntry<IBoxHitCollider> { id = id, collider = collider, layerMask = layerMask });
+            _boxHitEntries.Add(new HitEntry<IBoxHitCollider> { id = id, collider = collider, layerMask = layerMask, customData = customData });
             return id;
         }
 
@@ -322,9 +328,11 @@ namespace SampleEngine {
             EnsureNativeArrays();
 
             var hitWrite = 0;
+            _customDataList.Clear();
             for (var i = 0; i < _sphereHitEntries.Count; i++) {
                 var entry = _sphereHitEntries[i];
                 var collider = entry.collider;
+                _customDataList.Add(entry.customData);
                 _hitSnapshots[hitWrite++] = new HitSnapshot {
                     id = entry.id,
                     layerMask = entry.layerMask,
@@ -339,6 +347,7 @@ namespace SampleEngine {
             for (var i = 0; i < _boxHitEntries.Count; i++) {
                 var entry = _boxHitEntries[i];
                 var collider = entry.collider;
+                _customDataList.Add(entry.customData);
                 _hitSnapshots[hitWrite++] = new HitSnapshot {
                     id = entry.id,
                     layerMask = entry.layerMask,
@@ -420,13 +429,14 @@ namespace SampleEngine {
                 var hitId = _hitSnapshots[pair.hitIndex].id;
                 var receiveId = _receiveSnapshots[pair.receiveIndex].id;
                 var listener = _receiveEntries[pair.receiveIndex].listener;
-                var key = new PairKey(hitId, receiveId);
+                var customData = _customDataList[pair.hitIndex];
+                var key = new PairKey(hitId, receiveId, customData);
                 _currentPariKeys.Add(key);
 
                 if (listener != null) {
                     var contactPoint = (Vector3)_contactPoints[i];
                     var contactNormal = (Vector3)_contactNormals[i];
-                    var evt = new CollisionEvent(hitId, receiveId, contactPoint, contactNormal);
+                    var evt = new CollisionEvent(hitId, receiveId, contactPoint, contactNormal, customData);
                     if (_prevPariKeys.Contains(key)) {
                         listener.OnCollisionStay(evt);
                     }
@@ -452,7 +462,8 @@ namespace SampleEngine {
                 }
 
                 if (listener != null) {
-                    var evt = new CollisionEvent(hitId, receiveId, default, default);
+                    var customData = key.customData;
+                    var evt = new CollisionEvent(hitId, receiveId, default, default, customData);
                     listener.OnCollisionExit(evt);
                 }
             }
