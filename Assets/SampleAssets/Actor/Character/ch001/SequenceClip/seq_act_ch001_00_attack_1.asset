@@ -16,6 +16,7 @@ MonoBehaviour:
   sequenceEvents:
   - {fileID: -3425220644284697549}
   - {fileID: -5080155409652955090}
+  - {fileID: -3088973011491458428}
 --- !u!114 &-5080155409652955090
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -49,6 +50,25 @@ MonoBehaviour:
   enterTime: 1.8333334
   exitTime: 2.3833334
   Text: Hoge
+--- !u!114 &-3088973011491458428
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6817584f28103224ea2dcf790d51d2ac, type: 3}
+  m_Name: AttackRangeSequenceEvent
+  m_EditorClassIdentifier: SampleEngine.Runtime::SampleEngine.AttackRangeSequenceEvent
+  label: "\u653B\u6483\u5224\u5B9A"
+  active: 1
+  enterTime: 1.5166667
+  exitTime: 1.9
+  OffsetPositon: {x: 0, y: 0, z: 0.5}
+  Radius: 3
+  Constraint: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
