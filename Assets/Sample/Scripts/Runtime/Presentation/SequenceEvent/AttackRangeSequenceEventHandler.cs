@@ -7,7 +7,7 @@ namespace Sample.Presentation {
     /// <summary>
     /// ハンドラ
     /// </summary>
-    public sealed class AttackRangeSequenceEventHandler : RangeSequenceEventHandler<AttackRangeSequenceEvent>, IHitCollider {
+    public sealed class AttackRangeSequenceEventHandler : RangeSequenceEventHandler<AttackRangeSequenceEvent>, ISphereHitCollider {
         private IWorldCollisionService _worldCollisionService;
         private int _actorId;
         private Transform _baseTransform;
@@ -18,9 +18,9 @@ namespace Sample.Presentation {
         private int _collisionId;
 
         /// <inheritdoc/>
-        Vector3 IHitCollider.Center => _constraint ? _baseTransform.TransformPoint(_offset) : _offset;
+        Vector3 ISphereHitCollider.Center => _constraint ? _baseTransform.TransformPoint(_offset) : _offset;
         /// <inheritdoc/>
-        float IHitCollider.Radius => _radius;
+        float ISphereHitCollider.Radius => _radius;
 
         /// <inheritdoc/>
         protected override void OnEnter(AttackRangeSequenceEvent sequenceEvent) {

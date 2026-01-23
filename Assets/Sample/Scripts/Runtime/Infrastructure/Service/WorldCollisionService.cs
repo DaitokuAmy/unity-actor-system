@@ -8,24 +8,25 @@ namespace Sample.Infrastructure {
     /// 世界のコリジョン管理を提供するサービス
     /// </summary>
     public sealed class WorldCollisionService : IWorldCollisionService, ICollisionListener {
-        private readonly CollisionManager _collisionManager;
-        private readonly Dictionary<int, int> _collisionIdToActorIds = new();
-        private readonly Dictionary<int, List<int>> _actorIdToHitCollisionIds = new();
-        private readonly Dictionary<int, List<int>> _actorIdToReceiveCollisionIds = new();
-        private readonly Dictionary<int, IWorldCollisionListener> _collisionIdToListeners = new();
+        private readonly HitDetectionEngine _hitDetectionEngine;
+        private readonly Dictionary<int, int> _hidIdToActorIds = new();
+        private readonly Dictionary<int, int> _receiveIdToActorIds = new();
+        private readonly Dictionary<int, List<int>> _actorIdToHitIds = new();
+        private readonly Dictionary<int, List<int>> _actorIdToReceiveIds = new();
+        private readonly Dictionary<int, IWorldCollisionListener> _receiveIdToListeners = new();
         private readonly ObjectPool<List<int>> _listPool;
 
         /// <inheritdoc/>
         void ICollisionListener.OnCollisionEnter(in CollisionEvent evt) {
-            if (!_collisionIdToActorIds.TryGetValue(evt.hitId, out var hitActorId)) {
+            if (!_hidIdToActorIds.TryGetValue(evt.hitId, out var hitActorId)) {
                 return;
             }
 
-            if (!_collisionIdToActorIds.TryGetValue(evt.receiveId, out var receiveActorId)) {
+            if (!_receiveIdToActorIds.TryGetValue(evt.receiveId, out var receiveActorId)) {
                 return;
             }
 
-            if (!_collisionIdToListeners.TryGetValue(evt.receiveId, out var listener)) {
+            if (!_receiveIdToListeners.TryGetValue(evt.receiveId, out var listener)) {
                 return;
             }
 
@@ -34,15 +35,15 @@ namespace Sample.Infrastructure {
 
         /// <inheritdoc/>
         void ICollisionListener.OnCollisionStay(in CollisionEvent evt) {
-            if (!_collisionIdToActorIds.TryGetValue(evt.hitId, out var hitActorId)) {
+            if (!_hidIdToActorIds.TryGetValue(evt.hitId, out var hitActorId)) {
                 return;
             }
 
-            if (!_collisionIdToActorIds.TryGetValue(evt.receiveId, out var receiveActorId)) {
+            if (!_receiveIdToActorIds.TryGetValue(evt.receiveId, out var receiveActorId)) {
                 return;
             }
 
-            if (!_collisionIdToListeners.TryGetValue(evt.receiveId, out var listener)) {
+            if (!_receiveIdToListeners.TryGetValue(evt.receiveId, out var listener)) {
                 return;
             }
 
@@ -51,15 +52,15 @@ namespace Sample.Infrastructure {
 
         /// <inheritdoc/>
         void ICollisionListener.OnCollisionExit(in CollisionEvent evt) {
-            if (!_collisionIdToActorIds.TryGetValue(evt.hitId, out var hitActorId)) {
+            if (!_hidIdToActorIds.TryGetValue(evt.hitId, out var hitActorId)) {
                 return;
             }
 
-            if (!_collisionIdToActorIds.TryGetValue(evt.receiveId, out var receiveActorId)) {
+            if (!_receiveIdToActorIds.TryGetValue(evt.receiveId, out var receiveActorId)) {
                 return;
             }
 
-            if (!_collisionIdToListeners.TryGetValue(evt.receiveId, out var listener)) {
+            if (!_receiveIdToListeners.TryGetValue(evt.receiveId, out var listener)) {
                 return;
             }
 
@@ -71,72 +72,72 @@ namespace Sample.Infrastructure {
         /// </summary>
         public WorldCollisionService() {
             _listPool = new ObjectPool<List<int>>(() => new List<int>(), list => list.Clear(), list => list.Clear());
-            _collisionManager = new CollisionManager(5.0f);
+            _hitDetectionEngine = new HitDetectionEngine(5.0f);
         }
 
         /// <inheritdoc/>
         void IWorldCollisionService.Update(float deltaTime) {
-            _collisionManager.Update();
+            _hitDetectionEngine.Update();
         }
 
         /// <inheritdoc/>
         int IWorldCollisionService.RegisterReceive(int actorId, IReceiveCollider collider, int layerMask, IWorldCollisionListener listener) {
-            var collisionId = _collisionManager.RegisterReceive(collider, this, layerMask);
-            _collisionIdToActorIds[collisionId] = actorId;
-            _collisionIdToListeners[collisionId] = listener;
-            if (!_actorIdToReceiveCollisionIds.TryGetValue(actorId, out var list)) {
+            var receiveId = _hitDetectionEngine.RegisterReceive(collider, this, layerMask);
+            _receiveIdToActorIds[receiveId] = actorId;
+            _receiveIdToListeners[receiveId] = listener;
+            if (!_actorIdToReceiveIds.TryGetValue(actorId, out var list)) {
                 list = _listPool.Get();
-                _actorIdToReceiveCollisionIds[actorId] = list;
+                _actorIdToReceiveIds[actorId] = list;
             }
 
-            list.Add(collisionId);
-            return collisionId;
+            list.Add(receiveId);
+            return receiveId;
         }
 
         /// <inheritdoc/>
-        int IWorldCollisionService.RegisterHit(int actorId, IHitCollider collider, int layerMask) {
-            var collisionId = _collisionManager.RegisterHit(collider, layerMask);
-            _collisionIdToActorIds[collisionId] = actorId;
-            if (!_actorIdToHitCollisionIds.TryGetValue(actorId, out var list)) {
+        int IWorldCollisionService.RegisterHit(int actorId, ISphereHitCollider collider, int layerMask) {
+            var hitId = _hitDetectionEngine.RegisterHit(collider, layerMask);
+            _hidIdToActorIds[hitId] = actorId;
+            if (!_actorIdToHitIds.TryGetValue(actorId, out var list)) {
                 list = _listPool.Get();
-                _actorIdToHitCollisionIds[actorId] = list;
+                _actorIdToHitIds[actorId] = list;
             }
 
-            list.Add(collisionId);
-            return collisionId;
+            list.Add(hitId);
+            return hitId;
         }
 
         /// <inheritdoc/>
-        void IWorldCollisionService.UnregisterReceive(int collisionId) {
-            if (!_collisionIdToActorIds.TryGetValue(collisionId, out var actorId)) {
+        void IWorldCollisionService.UnregisterReceive(int receiveId) {
+            if (!_receiveIdToActorIds.TryGetValue(receiveId, out var actorId)) {
                 return;
             }
 
-            _collisionManager.UnregisterReceive(collisionId);
-            _collisionIdToActorIds.Remove(collisionId);
-            _collisionIdToListeners.Remove(collisionId);
-            if (_actorIdToReceiveCollisionIds.TryGetValue(actorId, out var list)) {
-                list.Remove(collisionId);
+            _hitDetectionEngine.UnregisterReceive(receiveId);
+            _hidIdToActorIds.Remove(receiveId);
+            _receiveIdToListeners.Remove(receiveId);
+            if (_actorIdToReceiveIds.TryGetValue(actorId, out var list)) {
+                list.Remove(receiveId);
                 if (list.Count == 0) {
                     _listPool.Release(list);
-                    _actorIdToReceiveCollisionIds.Remove(actorId);
+                    _actorIdToReceiveIds.Remove(actorId);
                 }
             }
         }
 
         /// <inheritdoc/>
-        void IWorldCollisionService.UnregisterHit(int collisionId) {
-            if (!_collisionIdToActorIds.TryGetValue(collisionId, out var actorId)) {
+        void IWorldCollisionService.UnregisterHit(int hitId) {
+            if (!_hidIdToActorIds.TryGetValue(hitId, out var actorId)) {
                 return;
             }
 
-            _collisionManager.UnregisterHit(collisionId);
-            _collisionIdToActorIds.Remove(collisionId);
-            if (_actorIdToHitCollisionIds.TryGetValue(actorId, out var list)) {
-                list.Remove(collisionId);
+            _hitDetectionEngine.UnregisterHit(hitId);
+            _hidIdToActorIds.Remove(hitId);
+            if (_actorIdToHitIds.TryGetValue(actorId, out var list)) {
+                list.Remove(hitId);
                 if (list.Count == 0) {
                     _listPool.Release(list);
-                    _actorIdToHitCollisionIds.Remove(actorId);
+                    _actorIdToHitIds.Remove(actorId);
                 }
             }
         }

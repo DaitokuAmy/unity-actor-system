@@ -8,69 +8,9 @@ using UnityEngine;
 
 namespace SampleEngine {
     /// <summary>
-    /// ヒットコリジョン情報
+    /// ヒット検出エンジン
     /// </summary>
-    public interface IHitCollider {
-        /// <summary>スフィアの中心</summary>
-        Vector3 Center { get; }
-        /// <summary>スフィアの半径</summary>
-        float Radius { get; }
-    }
-
-    /// <summary>
-    /// 受けコリジョン情報
-    /// </summary>
-    public interface IReceiveCollider {
-        /// <summary>カプセルの下端座標</summary>
-        Vector3 Bottom { get; }
-        /// <summary>カプセルの半径</summary>
-        float Radius { get; }
-        /// <summary>カプセルの高さ</summary>
-        float Height { get; }
-    }
-
-    /// <summary>
-    /// 衝突イベント情報
-    /// </summary>
-    public readonly struct CollisionEvent {
-        /// <summary>Hit側のId</summary>
-        public readonly int hitId;
-        /// <summary>受け側のId</summary>
-        public readonly int receiveId;
-        /// <summary>衝突位置</summary>
-        public readonly Vector3 contactPoint;
-
-        public CollisionEvent(int hitId, int receiveId, Vector3 contactPoint) {
-            this.hitId = hitId;
-            this.receiveId = receiveId;
-            this.contactPoint = contactPoint;
-        }
-    }
-
-    /// <summary>
-    /// 衝突検知リスナー
-    /// </summary>
-    public interface ICollisionListener {
-        /// <summary>
-        /// 衝突開始
-        /// </summary>
-        void OnCollisionEnter(in CollisionEvent evt);
-
-        /// <summary>
-        /// 衝突中
-        /// </summary>
-        void OnCollisionStay(in CollisionEvent evt);
-
-        /// <summary>
-        /// 衝突終了
-        /// </summary>
-        void OnCollisionExit(in CollisionEvent evt);
-    }
-
-    /// <summary>
-    /// 当たり判定管理クラス
-    /// </summary>
-    public sealed class CollisionManager : IDisposable {
+    public sealed class HitDetectionEngine : IDisposable {
         /// <summary>
         /// ヒットのJob計算用のSnapshot
         /// </summary>
@@ -158,9 +98,9 @@ namespace SampleEngine {
         /// <summary>
         /// ヒットコリジョン登録情報
         /// </summary>
-        private sealed class HitEntry {
+        private sealed class HitEntry<TCollider> {
             public int id;
-            public IHitCollider collider;
+            public TCollider collider;
             public int layerMask;
         }
 
@@ -205,7 +145,7 @@ namespace SampleEngine {
         }
 
         private readonly UniformGrid2D _hitGrid;
-        private readonly List<HitEntry> _hitEntries = new();
+        private readonly List<HitEntry<ISphereHitCollider>> _sphereHitEntries = new();
         private readonly List<ReceiveEntry> _receiveEntries = new();
 
         private readonly HashSet<PairKey> _prevPariKeys = new();
@@ -220,13 +160,14 @@ namespace SampleEngine {
         private NativeArray<float3> _contactPoints;
 
         private bool _disposed;
-        private int _nextId = 1;
+        private int _nextHitId = 1;
+        private int _nextReceiveId = 1;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         /// <param name="cellSize">空間分割用のセルサイズ</param>
-        public CollisionManager(float cellSize) {
+        public HitDetectionEngine(float cellSize) {
             _hitGrid = new UniformGrid2D(cellSize);
         }
 
@@ -263,18 +204,18 @@ namespace SampleEngine {
 
             // コリジョン情報をクリア
             _hitGrid.Clear();
-            _hitEntries.Clear();
+            _sphereHitEntries.Clear();
             _receiveEntries.Clear();
         }
 
         /// <summary>
-        /// ヒットコリジョン登録
+        /// 球体ヒットコリジョン登録
         /// </summary>
         /// <param name="collider">ヒットコリジョン情報</param>
         /// <param name="layerMask">判定レイヤーマスク</param>
-        public int RegisterHit(IHitCollider collider, int layerMask = ~0) {
-            var id = _nextId++;
-            _hitEntries.Add(new HitEntry { id = id, collider = collider, layerMask = layerMask });
+        public int RegisterHit(ISphereHitCollider collider, int layerMask = ~0) {
+            var id = _nextHitId++;
+            _sphereHitEntries.Add(new HitEntry<ISphereHitCollider> { id = id, collider = collider, layerMask = layerMask });
             return id;
         }
 
@@ -285,7 +226,7 @@ namespace SampleEngine {
         /// <param name="listener">判定検知用リスナー</param>
         /// <param name="layerMask">判定レイヤーマスク</param>
         public int RegisterReceive(IReceiveCollider collider, ICollisionListener listener, int layerMask = ~0) {
-            var id = _nextId++;
+            var id = _nextReceiveId++;
             _receiveEntries.Add(new ReceiveEntry { id = id, collider = collider, listener = listener, layerMask = layerMask });
             return id;
         }
@@ -295,9 +236,9 @@ namespace SampleEngine {
         /// </summary>
         /// <param name="id">登録時のId</param>
         public void UnregisterHit(int id) {
-            for (var i = _hitEntries.Count - 1; i >= 0; i--) {
-                if (_hitEntries[i].id == id) {
-                    _hitEntries.RemoveAt(i);
+            for (var i = _sphereHitEntries.Count - 1; i >= 0; i--) {
+                if (_sphereHitEntries[i].id == id) {
+                    _sphereHitEntries.RemoveAt(i);
                     break;
                 }
             }
@@ -323,8 +264,8 @@ namespace SampleEngine {
             // スナップショット作成
             EnsureNativeArrays();
 
-            for (var i = 0; i < _hitEntries.Count; i++) {
-                var entry = _hitEntries[i];
+            for (var i = 0; i < _sphereHitEntries.Count; i++) {
+                var entry = _sphereHitEntries[i];
                 var collider = entry.collider;
                 _hitSnapshots[i] = new HitSnapshot {
                     id = entry.id, center = collider.Center, radius = collider.Radius, layerMask = entry.layerMask,
@@ -345,7 +286,7 @@ namespace SampleEngine {
 
             // Gridで候補ペア作成
             _hitGrid.Clear();
-            for (var hitIndex = 0; hitIndex < _hitEntries.Count; hitIndex++) {
+            for (var hitIndex = 0; hitIndex < _sphereHitEntries.Count; hitIndex++) {
                 var hitSnapshot = _hitSnapshots[hitIndex];
                 _hitGrid.UpsertCircleXZ(hitIndex, hitSnapshot.center, hitSnapshot.radius);
             }
@@ -439,12 +380,12 @@ namespace SampleEngine {
         /// 管理対象のNativeArrayの確保
         /// </summary>
         private void EnsureNativeArrays() {
-            Ensure(ref _hitSnapshots, _hitEntries.Count);
+            Ensure(ref _hitSnapshots, _sphereHitEntries.Count);
             Ensure(ref _receiveSnapshots, _receiveEntries.Count);
 
             // Pairsは適当の初期容量を与える
             if (!_candidatePairs.IsCreated) {
-                _candidatePairs = new NativeArray<CandidatePair>(Mathf.Max(256, _hitEntries.Count * Mathf.Max(1, _receiveEntries.Count)), Allocator.Persistent);
+                _candidatePairs = new NativeArray<CandidatePair>(Mathf.Max(256, _sphereHitEntries.Count * Mathf.Max(1, _receiveEntries.Count)), Allocator.Persistent);
                 _hitFlags = new NativeArray<int>(_candidatePairs.Length, Allocator.Persistent);
                 _contactPoints = new NativeArray<float3>(_candidatePairs.Length, Allocator.Persistent);
             }

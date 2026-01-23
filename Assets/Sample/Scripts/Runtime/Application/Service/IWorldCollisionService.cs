@@ -27,7 +27,7 @@ namespace Sample.Application {
         /// <param name="collider">コライダー情報</param>
         /// <param name="layerMask">レイヤーマスク</param>
         /// <returns>コリジョンId</returns>
-        int RegisterHit(int actorId, IHitCollider collider, int layerMask);
+        int RegisterHit(int actorId, ISphereHitCollider collider, int layerMask);
 
         /// <summary>
         /// 受けコリジョンの登録解除
