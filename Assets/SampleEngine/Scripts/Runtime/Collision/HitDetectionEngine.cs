@@ -259,6 +259,17 @@ namespace SampleEngine {
         }
 
         /// <summary>
+        /// ボックスヒットコリジョン登録
+        /// </summary>
+        /// <param name="collider">ヒットコリジョン情報</param>
+        /// <param name="layerMask">判定レイヤーマスク</param>
+        public int RegisterHit(IBoxHitCollider collider, int layerMask = ~0) {
+            var id = _nextHitId++;
+            _boxHitEntries.Add(new HitEntry<IBoxHitCollider> { id = id, collider = collider, layerMask = layerMask });
+            return id;
+        }
+
+        /// <summary>
         /// 受けコリジョン登録
         /// </summary>
         /// <param name="collider">受けコリジョン情報</param>

@@ -109,6 +109,19 @@ namespace Sample.Infrastructure {
         }
 
         /// <inheritdoc/>
+        int IWorldCollisionService.RegisterHit(int actorId, IBoxHitCollider collider, int layerMask) {
+            var hitId = _hitDetectionEngine.RegisterHit(collider, layerMask);
+            _hidIdToActorIds[hitId] = actorId;
+            if (!_actorIdToHitIds.TryGetValue(actorId, out var list)) {
+                list = _listPool.Get();
+                _actorIdToHitIds[actorId] = list;
+            }
+
+            list.Add(hitId);
+            return hitId;
+        }
+
+        /// <inheritdoc/>
         void IWorldCollisionService.UnregisterReceive(int receiveId) {
             if (!_receiveIdToActorIds.TryGetValue(receiveId, out var actorId)) {
                 return;

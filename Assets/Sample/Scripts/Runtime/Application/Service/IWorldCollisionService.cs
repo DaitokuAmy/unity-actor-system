@@ -30,6 +30,15 @@ namespace Sample.Application {
         int RegisterHit(int actorId, ISphereHitCollider collider, int layerMask);
 
         /// <summary>
+        /// ヒットコリジョンの登録
+        /// </summary>
+        /// <param name="actorId">通知に使うActorId</param>
+        /// <param name="collider">コライダー情報</param>
+        /// <param name="layerMask">レイヤーマスク</param>
+        /// <returns>コリジョンId</returns>
+        int RegisterHit(int actorId, IBoxHitCollider collider, int layerMask);
+
+        /// <summary>
         /// 受けコリジョンの登録解除
         /// </summary>
         void UnregisterReceive(int collisionId);
