@@ -14,13 +14,13 @@ namespace SampleEngine {
         /// </summary>
         internal readonly struct DebugFrame {
             /// <summary>ヒット形状の一覧</summary>
-            public readonly IReadOnlyList<DebugHit> hits;
+            public readonly IReadOnlyList<DebugHit> Hits;
             /// <summary>受け形状の一覧</summary>
-            public readonly IReadOnlyList<DebugReceive> receives;
+            public readonly IReadOnlyList<DebugReceive> Receives;
             /// <summary>ヒットしている接触情報の一覧（候補ペアのうち命中したもの）</summary>
-            public readonly IReadOnlyList<DebugContact> contacts;
+            public readonly IReadOnlyList<DebugContact> Contacts;
             /// <summary>フレーム番号（更新ごとに増える）</summary>
-            public readonly int frameIndex;
+            public readonly int FrameIndex;
 
             /// <summary>
             /// コンストラクタ
@@ -30,10 +30,10 @@ namespace SampleEngine {
                 IReadOnlyList<DebugReceive> receives,
                 IReadOnlyList<DebugContact> contacts,
                 int frameIndex) {
-                this.hits = hits;
-                this.receives = receives;
-                this.contacts = contacts;
-                this.frameIndex = frameIndex;
+                Hits = hits;
+                Receives = receives;
+                Contacts = contacts;
+                FrameIndex = frameIndex;
             }
         }
 
@@ -42,31 +42,31 @@ namespace SampleEngine {
         /// </summary>
         internal readonly struct DebugHit {
             /// <summary>登録ID</summary>
-            public readonly int id;
+            public readonly int Id;
             /// <summary>判定レイヤーマスク</summary>
-            public readonly int layerMask;
+            public readonly int LayerMask;
             /// <summary>形状種別</summary>
-            public readonly HitShapeType shapeType;
+            public readonly HitShapeType ShapeType;
             /// <summary>中心</summary>
-            public readonly Vector3 center;
+            public readonly Vector3 Center;
             /// <summary>Sphere半径（Sphereのみ）</summary>
-            public readonly float radius;
+            public readonly float Radius;
             /// <summary>回転</summary>
-            public readonly Quaternion rotation;
+            public readonly Quaternion Rotation;
             /// <summary>ハーフサイズ</summary>
-            public readonly Vector3 halfExtents;
+            public readonly Vector3 HalfExtents;
 
             /// <summary>
             /// コンストラクタ
             /// </summary>
             public DebugHit(int id, int layerMask, HitShapeType shapeType, Vector3 center, float radius, Quaternion rotation, Vector3 halfExtents) {
-                this.id = id;
-                this.layerMask = layerMask;
-                this.shapeType = shapeType;
-                this.center = center;
-                this.radius = radius;
-                this.rotation = rotation;
-                this.halfExtents = halfExtents;
+                Id = id;
+                LayerMask = layerMask;
+                ShapeType = shapeType;
+                Center = center;
+                Radius = radius;
+                Rotation = rotation;
+                HalfExtents = halfExtents;
             }
         }
 
@@ -75,25 +75,25 @@ namespace SampleEngine {
         /// </summary>
         internal readonly struct DebugReceive {
             /// <summary>登録ID</summary>
-            public readonly int id;
+            public readonly int Id;
             /// <summary>判定レイヤーマスク</summary>
-            public readonly int layerMask;
+            public readonly int LayerMask;
             /// <summary>カプセル線分始点</summary>
-            public readonly Vector3 start;
+            public readonly Vector3 Start;
             /// <summary>カプセル線分終点</summary>
-            public readonly Vector3 end;
+            public readonly Vector3 End;
             /// <summary>半径</summary>
-            public readonly float radius;
+            public readonly float Radius;
 
             /// <summary>
             /// コンストラクタ
             /// </summary>
             public DebugReceive(int id, int layerMask, Vector3 start, Vector3 end, float radius) {
-                this.id = id;
-                this.layerMask = layerMask;
-                this.start = start;
-                this.end = end;
-                this.radius = radius;
+                Id = id;
+                LayerMask = layerMask;
+                Start = start;
+                End = end;
+                Radius = radius;
             }
         }
 
@@ -102,22 +102,22 @@ namespace SampleEngine {
         /// </summary>
         internal readonly struct DebugContact {
             /// <summary>ヒットID</summary>
-            public readonly int hitId;
+            public readonly int HitId;
             /// <summary>受けID</summary>
-            public readonly int receiveId;
+            public readonly int ReceiveId;
             /// <summary>接触点（Receive側）</summary>
-            public readonly Vector3 point;
+            public readonly Vector3 Point;
             /// <summary>法線（Receive側の外向き）</summary>
-            public readonly Vector3 normal;
+            public readonly Vector3 Normal;
 
             /// <summary>
             /// コンストラクタ
             /// </summary>
             public DebugContact(int hitId, int receiveId, Vector3 point, Vector3 normal) {
-                this.hitId = hitId;
-                this.receiveId = receiveId;
-                this.point = point;
-                this.normal = normal;
+                HitId = hitId;
+                ReceiveId = receiveId;
+                Point = point;
+                Normal = normal;
             }
         }
 
@@ -204,24 +204,24 @@ namespace SampleEngine {
             for (var i = 0; i < _hitSnapshots.Length; i++) {
                 var hs = _hitSnapshots[i];
                 _debugHits.Add(new DebugHit(
-                    hs.id,
-                    hs.layerMask,
-                    hs.shapeType,
-                    hs.center,
-                    hs.radius,
-                    hs.rotation,
-                    hs.halfExtents));
+                    hs.Id,
+                    hs.LayerMask,
+                    hs.ShapeType,
+                    hs.Center,
+                    hs.Radius,
+                    hs.Rotation,
+                    hs.HalfExtents));
             }
 
             // Receives
             for (var i = 0; i < _receiveSnapshots.Length; i++) {
                 var rs = _receiveSnapshots[i];
                 _debugReceives.Add(new DebugReceive(
-                    rs.id,
-                    rs.layerMask,
-                    rs.start,
-                    rs.end,
-                    rs.radius));
+                    rs.Id,
+                    rs.LayerMask,
+                    rs.Start,
+                    rs.End,
+                    rs.Radius));
             }
 
             // Contacts（命中分のみ）
@@ -231,8 +231,8 @@ namespace SampleEngine {
                 }
 
                 var pair = _candidatePairs[i];
-                var hitId = _hitSnapshots[pair.hitIndex].id;
-                var receiveId = _receiveSnapshots[pair.receiveIndex].id;
+                var hitId = _hitSnapshots[pair.HitIndex].Id;
+                var receiveId = _receiveSnapshots[pair.ReceiveIndex].Id;
 
                 _debugContacts.Add(new DebugContact(
                     hitId,

@@ -19,12 +19,12 @@ namespace SampleEngine {
             out float3 contactPoint,
             out float3 contactNormal) {
 
-            var sphereCenter = hit.center;
-            var sphereRadius = hit.radius;
+            var sphereCenter = hit.Center;
+            var sphereRadius = hit.Radius;
 
-            var capsuleA = receive.start;
-            var capsuleB = receive.end;
-            var capsuleRadius = receive.radius;
+            var capsuleA = receive.Start;
+            var capsuleB = receive.End;
+            var capsuleRadius = receive.Radius;
 
             contactPoint = default;
             contactNormal = default;
@@ -73,22 +73,22 @@ namespace SampleEngine {
             contactPoint = default;
             contactNormal = default;
 
-            var capsuleAWorld = receive.start;
-            var capsuleBWorld = receive.end;
-            var capsuleRadius = receive.radius;
+            var capsuleAWorld = receive.Start;
+            var capsuleBWorld = receive.End;
+            var capsuleRadius = receive.Radius;
 
             if (capsuleRadius < 0f) {
                 return false;
             }
 
             // OBBローカルへ（OBB中心=原点、回転=Identity）
-            var invRot = math.inverse(hit.rotation);
+            var invRot = math.inverse(hit.Rotation);
 
-            var a = math.mul(invRot, capsuleAWorld - hit.center);
-            var b = math.mul(invRot, capsuleBWorld - hit.center);
+            var a = math.mul(invRot, capsuleAWorld - hit.Center);
+            var b = math.mul(invRot, capsuleBWorld - hit.Center);
 
             // OBBはローカルでは AABB: [-e, +e]
-            var e = hit.halfExtents;
+            var e = hit.HalfExtents;
 
             // 線分上の点を複数評価して AABB への最近点を取る（軽量・実用版）
             // ※厳密な Segment-AABB 最短距離へ差し替える余地あり
@@ -110,8 +110,8 @@ namespace SampleEngine {
             }
 
             // ワールドへ戻す（軸点・箱点）
-            var axisPointWorld = hit.center + math.mul(hit.rotation, bestAxisPointLocal);
-            var boxPointWorld = hit.center + math.mul(hit.rotation, bestBoxPointLocal);
+            var axisPointWorld = hit.Center + math.mul(hit.Rotation, bestAxisPointLocal);
+            var boxPointWorld = hit.Center + math.mul(hit.Rotation, bestBoxPointLocal);
 
             // Receive 側外向き法線：カプセル軸→ヒット（箱）方向
             var v = boxPointWorld - axisPointWorld;

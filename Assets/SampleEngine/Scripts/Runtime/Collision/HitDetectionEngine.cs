@@ -23,42 +23,42 @@ namespace SampleEngine {
         /// ヒットのJob計算用のSnapshot
         /// </summary>
         private struct HitSnapshot {
-            public int id;
-            public int layerMask;
-            public HitShapeType shapeType;
+            public int Id;
+            public int LayerMask;
+            public HitShapeType ShapeType;
 
-            public float3 center;
-            public float radius;
-            public quaternion rotation;
-            public float3 halfExtents;
+            public float3 Center;
+            public float Radius;
+            public quaternion Rotation;
+            public float3 HalfExtents;
         }
 
         /// <summary>
         /// 受けのJob計算用のSnapshot
         /// </summary>
         private struct ReceiveSnapshot {
-            public int id;
-            public float3 start;
-            public float3 end;
-            public float radius;
-            public int layerMask;
+            public int Id;
+            public float3 Start;
+            public float3 End;
+            public float Radius;
+            public int LayerMask;
         }
 
         /// <summary>
         /// 候補ペア
         /// </summary>
         private struct CandidatePair {
-            public int hitIndex;
-            public int receiveIndex;
+            public int HitIndex;
+            public int ReceiveIndex;
         }
 
         /// <summary>
         /// 判定結果
         /// </summary>
         private struct HitResult {
-            public int hitIndex;
-            public int receiveIndex;
-            public float3 contactPoint;
+            public int HitIndex;
+            public int ReceiveIndex;
+            public float3 ContactPoint;
         }
 
         /// <summary>
@@ -67,56 +67,56 @@ namespace SampleEngine {
         [BurstCompile]
         private struct CheckHitJob : IJobParallelFor {
             [ReadOnly]
-            public NativeArray<HitSnapshot> hitSnapshots;
+            public NativeArray<HitSnapshot> HitSnapshots;
             [ReadOnly]
-            public NativeArray<ReceiveSnapshot> receiveSnapshots;
+            public NativeArray<ReceiveSnapshot> ReceiveSnapshots;
             [ReadOnly]
-            public NativeArray<CandidatePair> candidatePairs;
+            public NativeArray<CandidatePair> CandidatePairs;
 
-            public int pairCount;
+            public int PairCount;
 
             [WriteOnly]
-            public NativeArray<int> hitFlags;
+            public NativeArray<int> HitFlags;
             [WriteOnly]
-            public NativeArray<float3> contactPoints;
+            public NativeArray<float3> ContactPoints;
             [WriteOnly]
-            public NativeArray<float3> contactNormals;
+            public NativeArray<float3> ContactNormals;
 
             /// <inheritdoc/>
             public void Execute(int index) {
-                if (index >= pairCount) {
+                if (index >= PairCount) {
                     return;
                 }
 
-                var pair = candidatePairs[index];
-                var hitSnapshot = hitSnapshots[pair.hitIndex];
-                var receiveSnapshot = receiveSnapshots[pair.receiveIndex];
+                var pair = CandidatePairs[index];
+                var hitSnapshot = HitSnapshots[pair.HitIndex];
+                var receiveSnapshot = ReceiveSnapshots[pair.ReceiveIndex];
 
                 // レイヤー判定
-                if ((hitSnapshot.layerMask & receiveSnapshot.layerMask) == 0) {
+                if ((hitSnapshot.LayerMask & receiveSnapshot.LayerMask) == 0) {
                     return;
                 }
 
                 // 判定
-                hitFlags[index] = 0;
-                contactPoints[index] = default;
-                contactNormals[index] = default;
+                HitFlags[index] = 0;
+                ContactPoints[index] = default;
+                ContactNormals[index] = default;
 
-                switch (hitSnapshot.shapeType) {
+                switch (hitSnapshot.ShapeType) {
                     case HitShapeType.Sphere: {
                         if (TryGetReceiveContactPoint_Sphere(hitSnapshot, receiveSnapshot, out var contactPoint, out var contactNormal)) {
-                            hitFlags[index] = 1;
-                            contactPoints[index] = contactPoint;
-                            contactNormals[index] = contactNormal;
+                            HitFlags[index] = 1;
+                            ContactPoints[index] = contactPoint;
+                            ContactNormals[index] = contactNormal;
                         }
 
                         break;
                     }
                     case HitShapeType.Box: {
                         if (TryGetReceiveContactPoint_Box(hitSnapshot, receiveSnapshot, out var contactPoint, out var contactNormal)) {
-                            hitFlags[index] = 1;
-                            contactPoints[index] = contactPoint;
-                            contactNormals[index] = contactNormal;
+                            HitFlags[index] = 1;
+                            ContactPoints[index] = contactPoint;
+                            ContactNormals[index] = contactNormal;
                         }
 
                         break;
@@ -129,39 +129,39 @@ namespace SampleEngine {
         /// ヒットコリジョン登録情報
         /// </summary>
         private sealed class HitEntry<TCollider> {
-            public int id;
-            public TCollider collider;
-            public int layerMask;
-            public object customData;
+            public int Id;
+            public TCollider Collider;
+            public int LayerMask;
+            public object CustomData;
         }
 
         /// <summary>
         /// 受けコリジョン登録情報
         /// </summary>
         private sealed class ReceiveEntry {
-            public int id;
-            public IReceiveCollider collider;
-            public ICollisionListener listener;
-            public int layerMask;
+            public int Id;
+            public IReceiveCollider Collider;
+            public ICollisionListener Listener;
+            public int LayerMask;
         }
 
         /// <summary>
         /// 衝突ペアキー
         /// </summary>
         private readonly struct PairKey : IEquatable<PairKey> {
-            public readonly int hitId;
-            public readonly int receiveId;
-            public readonly object customData;
+            public readonly int HitId;
+            public readonly int ReceiveId;
+            public readonly object CustomData;
 
             public PairKey(int hitId, int receiveId, object customData) {
-                this.hitId = hitId;
-                this.receiveId = receiveId;
-                this.customData = customData;
+                this.HitId = hitId;
+                this.ReceiveId = receiveId;
+                this.CustomData = customData;
             }
 
             /// <inheritdoc/>
             public bool Equals(PairKey other) {
-                return hitId == other.hitId && receiveId == other.receiveId;
+                return HitId == other.HitId && ReceiveId == other.ReceiveId;
             }
 
             /// <inheritdoc/>
@@ -172,7 +172,7 @@ namespace SampleEngine {
             /// <inheritdoc/>
             public override int GetHashCode() {
                 unchecked {
-                    return (hitId * 397) ^ receiveId;
+                    return (HitId * 397) ^ ReceiveId;
                 }
             }
         }
@@ -259,7 +259,7 @@ namespace SampleEngine {
         /// <param name="customData">ヒット検出時に届くカスタムデータ</param>
         public int RegisterHit(ISphereHitCollider collider, int layerMask = ~0, object customData = null) {
             var id = _nextHitId++;
-            _sphereHitEntries.Add(new HitEntry<ISphereHitCollider> { id = id, collider = collider, layerMask = layerMask, customData = customData  });
+            _sphereHitEntries.Add(new HitEntry<ISphereHitCollider> { Id = id, Collider = collider, LayerMask = layerMask, CustomData = customData  });
             return id;
         }
 
@@ -271,7 +271,7 @@ namespace SampleEngine {
         /// <param name="customData">ヒット検出時に届くカスタムデータ</param>
         public int RegisterHit(IBoxHitCollider collider, int layerMask = ~0, object customData = null) {
             var id = _nextHitId++;
-            _boxHitEntries.Add(new HitEntry<IBoxHitCollider> { id = id, collider = collider, layerMask = layerMask, customData = customData });
+            _boxHitEntries.Add(new HitEntry<IBoxHitCollider> { Id = id, Collider = collider, LayerMask = layerMask, CustomData = customData });
             return id;
         }
 
@@ -283,7 +283,7 @@ namespace SampleEngine {
         /// <param name="layerMask">判定レイヤーマスク</param>
         public int RegisterReceive(IReceiveCollider collider, ICollisionListener listener, int layerMask = ~0) {
             var id = _nextReceiveId++;
-            _receiveEntries.Add(new ReceiveEntry { id = id, collider = collider, listener = listener, layerMask = layerMask });
+            _receiveEntries.Add(new ReceiveEntry { Id = id, Collider = collider, Listener = listener, LayerMask = layerMask });
             return id;
         }
 
@@ -293,14 +293,14 @@ namespace SampleEngine {
         /// <param name="id">登録時のId</param>
         public void UnregisterHit(int id) {
             for (var i = _sphereHitEntries.Count - 1; i >= 0; i--) {
-                if (_sphereHitEntries[i].id == id) {
+                if (_sphereHitEntries[i].Id == id) {
                     _sphereHitEntries.RemoveAt(i);
                     break;
                 }
             }
 
             for (var i = _boxHitEntries.Count - 1; i >= 0; i--) {
-                if (_boxHitEntries[i].id == id) {
+                if (_boxHitEntries[i].Id == id) {
                     _boxHitEntries.RemoveAt(i);
                     break;
                 }
@@ -313,7 +313,7 @@ namespace SampleEngine {
         /// <param name="id">登録時のId</param>
         public void UnregisterReceive(int id) {
             for (var i = _receiveEntries.Count - 1; i >= 0; i--) {
-                if (_receiveEntries[i].id == id) {
+                if (_receiveEntries[i].Id == id) {
                     _receiveEntries.RemoveAt(i);
                     break;
                 }
@@ -331,43 +331,43 @@ namespace SampleEngine {
             _customDataList.Clear();
             for (var i = 0; i < _sphereHitEntries.Count; i++) {
                 var entry = _sphereHitEntries[i];
-                var collider = entry.collider;
-                _customDataList.Add(entry.customData);
+                var collider = entry.Collider;
+                _customDataList.Add(entry.CustomData);
                 _hitSnapshots[hitWrite++] = new HitSnapshot {
-                    id = entry.id,
-                    layerMask = entry.layerMask,
-                    shapeType = HitShapeType.Sphere,
-                    center = collider.Center,
-                    radius = collider.Radius,
-                    rotation = default,
-                    halfExtents = default
+                    Id = entry.Id,
+                    LayerMask = entry.LayerMask,
+                    ShapeType = HitShapeType.Sphere,
+                    Center = collider.Center,
+                    Radius = collider.Radius,
+                    Rotation = default,
+                    HalfExtents = default
                 };
             }
 
             for (var i = 0; i < _boxHitEntries.Count; i++) {
                 var entry = _boxHitEntries[i];
-                var collider = entry.collider;
-                _customDataList.Add(entry.customData);
+                var collider = entry.Collider;
+                _customDataList.Add(entry.CustomData);
                 _hitSnapshots[hitWrite++] = new HitSnapshot {
-                    id = entry.id,
-                    layerMask = entry.layerMask,
-                    shapeType = HitShapeType.Box,
-                    center = collider.Center,
-                    radius = 0.0f,
-                    rotation = collider.Rotation,
-                    halfExtents = collider.HalfExtents
+                    Id = entry.Id,
+                    LayerMask = entry.LayerMask,
+                    ShapeType = HitShapeType.Box,
+                    Center = collider.Center,
+                    Radius = 0.0f,
+                    Rotation = collider.Rotation,
+                    HalfExtents = collider.HalfExtents
                 };
             }
 
             for (var i = 0; i < _receiveEntries.Count; i++) {
                 var entry = _receiveEntries[i];
-                var collider = entry.collider;
+                var collider = entry.Collider;
                 _receiveSnapshots[i] = new ReceiveSnapshot {
-                    id = entry.id,
-                    radius = collider.Radius,
-                    start = collider.Start,
-                    end = collider.End,
-                    layerMask = entry.layerMask,
+                    Id = entry.Id,
+                    Radius = collider.Radius,
+                    Start = collider.Start,
+                    End = collider.End,
+                    LayerMask = entry.LayerMask,
                 };
             }
 
@@ -375,12 +375,12 @@ namespace SampleEngine {
             _hitGrid.Clear();
             for (var hitIndex = 0; hitIndex < hitWrite; hitIndex++) {
                 var hitSnapshot = _hitSnapshots[hitIndex];
-                switch (hitSnapshot.shapeType) {
+                switch (hitSnapshot.ShapeType) {
                     case HitShapeType.Sphere:
-                        _hitGrid.UpsertCircleXZ(hitIndex, hitSnapshot.center, hitSnapshot.radius);
+                        _hitGrid.UpsertCircleXZ(hitIndex, hitSnapshot.Center, hitSnapshot.Radius);
                         break;
                     case HitShapeType.Box:
-                        _hitGrid.UpsertObbXZ(hitIndex, hitSnapshot.center, hitSnapshot.rotation, hitSnapshot.halfExtents);
+                        _hitGrid.UpsertObbXZ(hitIndex, hitSnapshot.Center, hitSnapshot.Rotation, hitSnapshot.HalfExtents);
                         break;
                 }
             }
@@ -388,9 +388,9 @@ namespace SampleEngine {
             var pairCount = 0;
             for (var receiveIndex = 0; receiveIndex < _receiveEntries.Count; receiveIndex++) {
                 var receiveSnapshot = _receiveSnapshots[receiveIndex];
-                var queryStart = receiveSnapshot.start;
-                var queryEnd = receiveSnapshot.end;
-                var queryRadius = receiveSnapshot.radius;
+                var queryStart = receiveSnapshot.Start;
+                var queryEnd = receiveSnapshot.End;
+                var queryRadius = receiveSnapshot.Radius;
 
                 _hitGrid.QueryCapsuleXZ(queryStart, queryEnd, queryRadius, _tmpCandidates);
 
@@ -401,19 +401,19 @@ namespace SampleEngine {
                         GrowPairs(pairCount + 1);
                     }
 
-                    _candidatePairs[pairCount++] = new CandidatePair { hitIndex = hitIndex, receiveIndex = receiveIndex };
+                    _candidatePairs[pairCount++] = new CandidatePair { HitIndex = hitIndex, ReceiveIndex = receiveIndex };
                 }
             }
 
             // Jobを使った処理の実行
             var job = new CheckHitJob {
-                hitSnapshots = _hitSnapshots,
-                receiveSnapshots = _receiveSnapshots,
-                candidatePairs = _candidatePairs,
-                pairCount = pairCount,
-                hitFlags = _hitFlags,
-                contactPoints = _contactPoints,
-                contactNormals = _contactNormals,
+                HitSnapshots = _hitSnapshots,
+                ReceiveSnapshots = _receiveSnapshots,
+                CandidatePairs = _candidatePairs,
+                PairCount = pairCount,
+                HitFlags = _hitFlags,
+                ContactPoints = _contactPoints,
+                ContactNormals = _contactNormals,
             };
             var handle = job.Schedule(pairCount, 64);
             handle.Complete();
@@ -426,10 +426,10 @@ namespace SampleEngine {
                 }
 
                 var pair = _candidatePairs[i];
-                var hitId = _hitSnapshots[pair.hitIndex].id;
-                var receiveId = _receiveSnapshots[pair.receiveIndex].id;
-                var listener = _receiveEntries[pair.receiveIndex].listener;
-                var customData = _customDataList[pair.hitIndex];
+                var hitId = _hitSnapshots[pair.HitIndex].Id;
+                var receiveId = _receiveSnapshots[pair.ReceiveIndex].Id;
+                var listener = _receiveEntries[pair.ReceiveIndex].Listener;
+                var customData = _customDataList[pair.HitIndex];
                 var key = new PairKey(hitId, receiveId, customData);
                 _currentPariKeys.Add(key);
 
@@ -451,18 +451,18 @@ namespace SampleEngine {
                     continue;
                 }
 
-                var hitId = key.hitId;
-                var receiveId = key.receiveId;
+                var hitId = key.HitId;
+                var receiveId = key.ReceiveId;
                 var listener = default(ICollisionListener);
                 for (var i = 0; i < _receiveEntries.Count; i++) {
-                    if (_receiveEntries[i].id == receiveId) {
-                        listener = _receiveEntries[i].listener;
+                    if (_receiveEntries[i].Id == receiveId) {
+                        listener = _receiveEntries[i].Listener;
                         break;
                     }
                 }
 
                 if (listener != null) {
-                    var customData = key.customData;
+                    var customData = key.CustomData;
                     var evt = new CollisionEvent(hitId, receiveId, default, default, customData);
                     listener.OnCollisionExit(evt);
                 }

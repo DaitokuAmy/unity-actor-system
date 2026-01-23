@@ -72,14 +72,14 @@ namespace SampleEngine {
             var prevColor = Gizmos.color;
             Gizmos.color = _hitColor;
 
-            foreach (var h in frame.hits) {
-                var center = h.center;
+            foreach (var h in frame.Hits) {
+                var center = h.Center;
 
-                if (h.shapeType == HitDetectionEngine.HitShapeType.Sphere) {
-                    DrawWireSphere(center, h.radius);
+                if (h.ShapeType == HitDetectionEngine.HitShapeType.Sphere) {
+                    DrawWireSphere(center, h.Radius);
                 }
-                else if (h.shapeType == HitDetectionEngine.HitShapeType.Box) {
-                    DrawWireObb(h.center, h.rotation, h.halfExtents);
+                else if (h.ShapeType == HitDetectionEngine.HitShapeType.Box) {
+                    DrawWireObb(h.Center, h.Rotation, h.HalfExtents);
                 }
             }
 
@@ -93,8 +93,8 @@ namespace SampleEngine {
             var prevColor = Gizmos.color;
             Gizmos.color = _receiveColor;
 
-            foreach (var r in frame.receives) {
-                DrawWireCapsule(r.start, r.end, r.radius);
+            foreach (var r in frame.Receives) {
+                DrawWireCapsule(r.Start, r.End, r.Radius);
             }
 
             Gizmos.color = prevColor;
@@ -107,9 +107,9 @@ namespace SampleEngine {
             var prevColor = Gizmos.color;
             Gizmos.color = _contactColor;
 
-            foreach (var c in frame.contacts) {
-                var p = c.point;
-                var n = c.normal;
+            foreach (var c in frame.Contacts) {
+                var p = c.Point;
+                var n = c.Normal;
 
                 DrawWireSphere(p, _contactPointRadius);
                 Gizmos.DrawLine(p, p + n * _contactNormalLength);
