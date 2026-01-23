@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Sample.Application;
 using SampleEngine;
@@ -7,7 +8,7 @@ namespace Sample.Infrastructure {
     /// <summary>
     /// 世界のコリジョン管理を提供するサービス
     /// </summary>
-    public sealed class WorldCollisionService : IWorldCollisionService, ICollisionListener {
+    public sealed class WorldCollisionService : IWorldCollisionService, ICollisionListener, IDisposable {
         private readonly HitDetectionEngine _hitDetectionEngine;
         private readonly Dictionary<int, int> _hidIdToActorIds = new();
         private readonly Dictionary<int, int> _receiveIdToActorIds = new();
@@ -23,6 +24,25 @@ namespace Sample.Infrastructure {
             _listPool = new ObjectPool<List<int>>(() => new List<int>(), list => list.Clear(), list => list.Clear());
             _hitDetectionEngine = new HitDetectionEngine(5.0f);
             _hitDetectionEngine.EnableDebugView();
+        }
+
+        /// <inheritdoc/>
+        void IDisposable.Dispose() {
+            foreach (var pair in _actorIdToHitIds) {
+                _listPool.Release(pair.Value);
+            }
+
+            foreach (var pair in _actorIdToReceiveIds) {
+                _listPool.Release(pair.Value);
+            }
+
+            _listPool.Dispose();
+            _actorIdToHitIds.Clear();
+            _actorIdToReceiveIds.Clear();
+            _hidIdToActorIds.Clear();
+            _receiveIdToActorIds.Clear();
+            _receiveIdToListeners.Clear();
+            _hitDetectionEngine.Dispose();
         }
 
         /// <inheritdoc/>
