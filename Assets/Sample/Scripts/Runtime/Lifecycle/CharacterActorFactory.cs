@@ -48,7 +48,7 @@ namespace Sample.Lifecycle {
             var presenter = new CharacterPresenter(view);
             _objectResolver.Inject(presenter);
             actor.SetPresenter(presenter);
-            var receiver = new CharacterReceiver(view);
+            var receiver = new CharacterReceiver(model, view);
             _objectResolver.Inject(receiver);
             actor.SetReceiver(receiver);
         }
@@ -72,7 +72,7 @@ namespace Sample.Lifecycle {
             var presenter = new CharacterPresenter(view);
             _objectResolver.Inject(presenter);
             actor.SetPresenter(presenter);
-            var receiver = new CharacterReceiver(view);
+            var receiver = new CharacterReceiver(model, view);
             _objectResolver.Inject(receiver);
             actor.SetReceiver(receiver);
         }

@@ -64,12 +64,40 @@ namespace SampleEngine {
         /// Circle単位での登録
         /// </summary>
         public void UpsertCircleXZ(int id, Vector3 center, float radius) {
-            Remove(id);
-
+            // 矩形を作成して更新
             var minX = center.x - radius;
             var maxX = center.x + radius;
             var minZ = center.z - radius;
             var maxZ = center.z + radius;
+            UpsertRect(id, minX, maxX, minZ, maxZ);
+        }
+
+        /// <summary>
+        /// OBB単位での登録
+        /// </summary>
+        public void UpsertObbXZ(int id, Vector3 center, Quaternion rotation, Vector3 halfExtents) {
+            // AABBにした際のサイズを計算
+            var matrix = Matrix4x4.TRS(center, rotation, halfExtents);
+            var ex = halfExtents.x;
+            var ey = halfExtents.y;
+            var ez = halfExtents.z;
+            var aabbHalfX = Mathf.Abs(matrix.m00) * ex + Mathf.Abs(matrix.m01) * ey + Mathf.Abs(matrix.m02) * ez;
+            var aabbHalfZ = Mathf.Abs(matrix.m20) * ex + Mathf.Abs(matrix.m21) * ey + Mathf.Abs(matrix.m22) * ez;
+
+            // 矩形を作成して更新
+            var minX = center.x - aabbHalfX;
+            var maxX = center.x + aabbHalfX;
+            var minZ = center.z - aabbHalfZ;
+            var maxZ = center.z + aabbHalfZ;
+
+            UpsertRect(id, minX, maxX, minZ, maxZ);
+        }
+
+        /// <summary>
+        /// 矩形情報でのCell登録処理
+        /// </summary>
+        private void UpsertRect(int id, float minX, float maxX, float minZ, float maxZ) {
+            Remove(id);
 
             var minCx = WorldToCell(minX);
             var maxCx = WorldToCell(maxX);
@@ -98,13 +126,35 @@ namespace SampleEngine {
         /// Circle範囲の登録Idを列挙
         /// </summary>
         public void QueryCircleXZ(Vector3 center, float radius, List<int> outHitIndices) {
-            outHitIndices.Clear();
-            
             var minX = center.x - radius;
             var maxX = center.x + radius;
             var minZ = center.z - radius;
             var maxZ = center.z + radius;
+            
+            QueryRect(minX, maxX, minZ, maxZ, outHitIndices);
+        }
 
+        /// <summary>
+        /// Capsule範囲の登録Idを列挙
+        /// </summary>
+        public void QueryCapsuleXZ(Vector3 start, Vector3 end, float radius, List<int> outHitIndices) {
+            var min = Vector3.Min(start, end);
+            var max = Vector3.Max(start, end);
+
+            var minX = min.x - radius;
+            var maxX = min.x + radius;
+            var minZ = max.z - radius;
+            var maxZ = max.z + radius;
+            
+            QueryRect(minX, maxX, minZ, maxZ, outHitIndices);
+        }
+
+        /// <summary>
+        /// 矩形範囲の登録Idを列挙
+        /// </summary>
+        public void QueryRect(float minX, float maxX, float minZ, float maxZ, List<int> outHitIndices) {
+            outHitIndices.Clear();
+            
             var minCx = WorldToCell(minX);
             var maxCx = WorldToCell(maxX);
             var minCz = WorldToCell(minZ);

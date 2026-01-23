@@ -11,11 +11,14 @@ namespace SampleEngine {
         public readonly int receiveId;
         /// <summary>衝突位置</summary>
         public readonly Vector3 contactPoint;
+        /// <summary>衝突向き</summary>
+        public readonly Vector3 contactNormal;
 
-        public CollisionEvent(int hitId, int receiveId, Vector3 contactPoint) {
+        public CollisionEvent(int hitId, int receiveId, Vector3 contactPoint, Vector3 contactNormal) {
             this.hitId = hitId;
             this.receiveId = receiveId;
             this.contactPoint = contactPoint;
+            this.contactNormal = contactNormal;
         }
     }
 }

@@ -35,6 +35,11 @@ namespace Sample.Presentation {
             _worldCollisionService.UnregisterHit(_collisionId);
         }
 
+        /// <inheritdoc/>
+        protected override void OnCancel(AttackRangeSequenceEvent sequenceEvent) {
+            OnExit(sequenceEvent);
+        }
+
         /// <summary>
         /// 情報セットアップ
         /// </summary>

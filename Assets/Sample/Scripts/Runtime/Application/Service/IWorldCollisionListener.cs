@@ -8,12 +8,12 @@ namespace Sample.Application {
         /// <summary>
         /// 衝突開始
         /// </summary>
-        void OnCollisionEnter(int hitActorId, int receiveActorId, Vector3 contactPoint);
+        void OnCollisionEnter(int hitActorId, int receiveActorId, Vector3 contactPoint, Vector3 contactNormal);
 
         /// <summary>
         /// 衝突中
         /// </summary>
-        void OnCollisionStay(int hitActorId, int receiveActorId, Vector3 contactPoint);
+        void OnCollisionStay(int hitActorId, int receiveActorId, Vector3 contactPoint, Vector3 contactNormal);
 
         /// <summary>
         /// 衝突終了

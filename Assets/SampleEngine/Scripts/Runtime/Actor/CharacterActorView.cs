@@ -63,11 +63,11 @@ namespace Sample.Presentation {
         private Vector3 _aimPoint;
 
         /// <inheritdoc/>
-        Vector3 IReceiveCollider.Bottom => Body.Position;
+        Vector3 IReceiveCollider.Start => Body.Position + Vector3.up * 0.5f;
         /// <inheritdoc/>
-        float IReceiveCollider.Radius => 1.0f;
+        Vector3 IReceiveCollider.End => Body.Position + Vector3.up * 1.5f;
         /// <inheritdoc/>
-        float IReceiveCollider.Height => 2.0f;
+        float IReceiveCollider.Radius => 0.5f;
 
         /// <summary>Bodyの参照</summary>
         public Body Body => _body;

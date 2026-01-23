@@ -5,11 +5,11 @@ namespace SampleEngine {
     /// 受けコリジョン情報
     /// </summary>
     public interface IReceiveCollider {
-        /// <summary>カプセルの下端座標</summary>
-        Vector3 Bottom { get; }
+        /// <summary>カプセルの開始位置</summary>
+        Vector3 Start { get; }
+        /// <summary>カプセルの終了位置</summary>
+        Vector3 End { get; }
         /// <summary>カプセルの半径</summary>
         float Radius { get; }
-        /// <summary>カプセルの高さ</summary>
-        float Height { get; }
     }
 }

@@ -16,6 +16,15 @@ namespace Sample.Infrastructure {
         private readonly Dictionary<int, IWorldCollisionListener> _receiveIdToListeners = new();
         private readonly ObjectPool<List<int>> _listPool;
 
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        public WorldCollisionService() {
+            _listPool = new ObjectPool<List<int>>(() => new List<int>(), list => list.Clear(), list => list.Clear());
+            _hitDetectionEngine = new HitDetectionEngine(5.0f);
+            _hitDetectionEngine.EnableDebugView();
+        }
+
         /// <inheritdoc/>
         void ICollisionListener.OnCollisionEnter(in CollisionEvent evt) {
             if (!_hidIdToActorIds.TryGetValue(evt.hitId, out var hitActorId)) {
@@ -30,7 +39,7 @@ namespace Sample.Infrastructure {
                 return;
             }
 
-            listener?.OnCollisionEnter(hitActorId, receiveActorId, evt.contactPoint);
+            listener?.OnCollisionEnter(hitActorId, receiveActorId, evt.contactPoint, evt.contactNormal);
         }
 
         /// <inheritdoc/>
@@ -47,7 +56,7 @@ namespace Sample.Infrastructure {
                 return;
             }
 
-            listener?.OnCollisionStay(hitActorId, receiveActorId, evt.contactPoint);
+            listener?.OnCollisionStay(hitActorId, receiveActorId, evt.contactPoint, evt.contactNormal);
         }
 
         /// <inheritdoc/>
@@ -65,14 +74,6 @@ namespace Sample.Infrastructure {
             }
 
             listener?.OnCollisionExit(hitActorId, receiveActorId);
-        }
-
-        /// <summary>
-        /// コンストラクタ
-        /// </summary>
-        public WorldCollisionService() {
-            _listPool = new ObjectPool<List<int>>(() => new List<int>(), list => list.Clear(), list => list.Clear());
-            _hitDetectionEngine = new HitDetectionEngine(5.0f);
         }
 
         /// <inheritdoc/>

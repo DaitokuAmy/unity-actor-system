@@ -1,6 +1,7 @@
 using System;
 using R3;
 using Sample.Application;
+using Sample.Core;
 using SampleEngine;
 using UnityActorSystem;
 using UnityEngine;
@@ -19,13 +20,16 @@ namespace Sample.Presentation {
 
         /// <summary>オーナーアクター</summary>
         protected Actor<int> Owner { get; private set; }
+        /// <summary>モデル</summary>
+        protected IReadOnlyCharacterModel Model { get; private set; }
         /// <summary>制御用のビュー</summary>
         protected CharacterActorView ActorView { get; }
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public CharacterReceiver(CharacterActorView actorView) {
+        public CharacterReceiver(IReadOnlyCharacterModel model, CharacterActorView actorView) {
+            Model = model;
             ActorView = actorView;
         }
 
@@ -37,15 +41,19 @@ namespace Sample.Presentation {
             _compositeDisposable = new CompositeDisposable();
 
             // 受けコリジョン登録
-            _receiveCollisionId = _worldCollisionService.RegisterReceive(Owner.Id, ActorView, ~0, this);
+            var receiveLayerMask = GetCollisionLayerMask(Model);
+            var attackLayerMask = ~receiveLayerMask;
+            _receiveCollisionId = _worldCollisionService.RegisterReceive(Owner.Id, ActorView, receiveLayerMask, this);
 
             var sequenceController = ActorView.SequenceController;
             sequenceController.BindRangeEventHandler<LogRangeSequenceEvent, LogRangeSequenceEventHandler>()
                 .AddTo(_compositeDisposable);
-            sequenceController.BindRangeEventHandler<CombableRangeSequenceEvent>(onEnter: OnEnterCombable, onExit: OnExitCombable, onCancel: OnExitCombable)
+            sequenceController.BindRangeEventHandler<CombableRangeSequenceEvent, CombableRangeSequenceEventHandler>(onInit: handler => {
+                    handler.Setup(Owner);
+                })
                 .AddTo(_compositeDisposable);
             sequenceController.BindRangeEventHandler<AttackRangeSequenceEvent, AttackRangeSequenceEventHandler>(onInit: handler => {
-                    handler.Setup(_worldCollisionService, Owner.Id, ActorView.Body.Transform, ~0);
+                    handler.Setup(_worldCollisionService, Owner.Id, ActorView.Body.Transform, attackLayerMask);
                 })
                 .AddTo(_compositeDisposable);
         }
@@ -72,13 +80,13 @@ namespace Sample.Presentation {
         void IActorInterface<int>.Update(float deltaTime) { }
 
         /// <inheritdoc/>
-        void IWorldCollisionListener.OnCollisionEnter(int hitActorId, int receiveActorId, Vector3 contactPoint) {
-            Debug.Log($"OnCollisionEnter: {hitActorId} -> {receiveActorId} ({contactPoint})");
+        void IWorldCollisionListener.OnCollisionEnter(int hitActorId, int receiveActorId, Vector3 contactPoint, Vector3 contactNormal) {
+            Debug.Log($"OnCollisionEnter: {hitActorId} -> {receiveActorId} ({contactPoint}, {contactNormal})");
         }
 
         /// <inheritdoc/>
-        void IWorldCollisionListener.OnCollisionStay(int hitActorId, int receiveActorId, Vector3 contactPoint) {
-            Debug.Log($"OnCollisionStay: {hitActorId} -> {receiveActorId} ({contactPoint})");
+        void IWorldCollisionListener.OnCollisionStay(int hitActorId, int receiveActorId, Vector3 contactPoint, Vector3 contactNormal) {
+            Debug.Log($"OnCollisionStay: {hitActorId} -> {receiveActorId} ({contactPoint}, {contactNormal})");
         }
 
         /// <inheritdoc/>
@@ -87,19 +95,35 @@ namespace Sample.Presentation {
         }
 
         /// <summary>
-        /// コンボ可能エリアの開始
+        /// コリジョンレイヤーマスクの取得
         /// </summary>
-        private void OnEnterCombable(CombableRangeSequenceEvent evt) {
-            var signal = Owner.CreateSignal<CharacterSignals.BeginCombable>();
-            Owner.AddSignal(signal);
+        private int GetCollisionLayerMask<TModel>()
+            where TModel : IReadOnlyCharacterModel {
+            var type = typeof(TModel);
+            if (typeof(IReadOnlyPlayerModel).IsAssignableFrom(type)) {
+                return 1 << 0;
+            }
+
+            if (typeof(IReadOnlyEnemyModel).IsAssignableFrom(type)) {
+                return 1 << 1;
+            }
+
+            return ~0;
         }
 
         /// <summary>
-        /// コンボ可能エリアの終了
+        /// コリジョンレイヤーマスクの取得
         /// </summary>
-        private void OnExitCombable(CombableRangeSequenceEvent evt) {
-            var signal = Owner.CreateSignal<CharacterSignals.EndCombable>();
-            Owner.AddSignal(signal);
+        private int GetCollisionLayerMask(IReadOnlyCharacterModel model) {
+            if (model is IReadOnlyPlayerModel) {
+                return GetCollisionLayerMask<IReadOnlyPlayerModel>();
+            }
+
+            if (model is IReadOnlyEnemyModel) {
+                return GetCollisionLayerMask<IReadOnlyEnemyModel>();
+            }
+
+            return ~0;
         }
     }
 }

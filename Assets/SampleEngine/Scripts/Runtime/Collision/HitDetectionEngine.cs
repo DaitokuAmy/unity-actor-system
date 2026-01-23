@@ -10,15 +10,27 @@ namespace SampleEngine {
     /// <summary>
     /// ヒット検出エンジン
     /// </summary>
-    public sealed class HitDetectionEngine : IDisposable {
+    public sealed partial class HitDetectionEngine : IDisposable {
+        /// <summary>
+        /// ヒット形状種別
+        /// </summary>
+        internal enum HitShapeType : byte {
+            Sphere = 0,
+            Box = 1,
+        }
+
         /// <summary>
         /// ヒットのJob計算用のSnapshot
         /// </summary>
         private struct HitSnapshot {
             public int id;
+            public int layerMask;
+            public HitShapeType shapeType;
+
             public float3 center;
             public float radius;
-            public int layerMask;
+            public quaternion rotation;
+            public float3 halfExtents;
         }
 
         /// <summary>
@@ -26,9 +38,9 @@ namespace SampleEngine {
         /// </summary>
         private struct ReceiveSnapshot {
             public int id;
-            public float3 bottom;
+            public float3 start;
+            public float3 end;
             public float radius;
-            public float height;
             public int layerMask;
         }
 
@@ -67,6 +79,8 @@ namespace SampleEngine {
             public NativeArray<int> hitFlags;
             [WriteOnly]
             public NativeArray<float3> contactPoints;
+            [WriteOnly]
+            public NativeArray<float3> contactNormals;
 
             /// <inheritdoc/>
             public void Execute(int index) {
@@ -84,13 +98,29 @@ namespace SampleEngine {
                 }
 
                 // 判定
-                if (TryGetReceiveContactPoint(hitSnapshot, receiveSnapshot, out var contactPoint)) {
-                    hitFlags[index] = 1;
-                    contactPoints[index] = contactPoint;
-                }
-                else {
-                    hitFlags[index] = 0;
-                    contactPoints[index] = default;
+                hitFlags[index] = 0;
+                contactPoints[index] = default;
+                contactNormals[index] = default;
+
+                switch (hitSnapshot.shapeType) {
+                    case HitShapeType.Sphere: {
+                        if (TryGetReceiveContactPoint_Sphere(hitSnapshot, receiveSnapshot, out var contactPoint, out var contactNormal)) {
+                            hitFlags[index] = 1;
+                            contactPoints[index] = contactPoint;
+                            contactNormals[index] = contactNormal;
+                        }
+
+                        break;
+                    }
+                    case HitShapeType.Box: {
+                        if (TryGetReceiveContactPoint_Box(hitSnapshot, receiveSnapshot, out var contactPoint, out var contactNormal)) {
+                            hitFlags[index] = 1;
+                            contactPoints[index] = contactPoint;
+                            contactNormals[index] = contactNormal;
+                        }
+
+                        break;
+                    }
                 }
             }
         }
@@ -146,6 +176,7 @@ namespace SampleEngine {
 
         private readonly UniformGrid2D _hitGrid;
         private readonly List<HitEntry<ISphereHitCollider>> _sphereHitEntries = new();
+        private readonly List<HitEntry<IBoxHitCollider>> _boxHitEntries = new();
         private readonly List<ReceiveEntry> _receiveEntries = new();
 
         private readonly HashSet<PairKey> _prevPariKeys = new();
@@ -158,6 +189,7 @@ namespace SampleEngine {
         private NativeArray<CandidatePair> _candidatePairs;
         private NativeArray<int> _hitFlags;
         private NativeArray<float3> _contactPoints;
+        private NativeArray<float3> _contactNormals;
 
         private bool _disposed;
         private int _nextHitId = 1;
@@ -180,6 +212,9 @@ namespace SampleEngine {
             }
 
             _disposed = true;
+            
+            // Debug情報の削除
+            DisableDebugView();
 
             // NativeArrayの解放
             if (_hitSnapshots.IsCreated) {
@@ -200,6 +235,10 @@ namespace SampleEngine {
 
             if (_contactPoints.IsCreated) {
                 _contactPoints.Dispose();
+            }
+
+            if (_contactNormals.IsCreated) {
+                _contactNormals.Dispose();
             }
 
             // コリジョン情報をクリア
@@ -242,6 +281,13 @@ namespace SampleEngine {
                     break;
                 }
             }
+
+            for (var i = _boxHitEntries.Count - 1; i >= 0; i--) {
+                if (_boxHitEntries[i].id == id) {
+                    _boxHitEntries.RemoveAt(i);
+                    break;
+                }
+            }
         }
 
         /// <summary>
@@ -264,11 +310,32 @@ namespace SampleEngine {
             // スナップショット作成
             EnsureNativeArrays();
 
+            var hitWrite = 0;
             for (var i = 0; i < _sphereHitEntries.Count; i++) {
                 var entry = _sphereHitEntries[i];
                 var collider = entry.collider;
-                _hitSnapshots[i] = new HitSnapshot {
-                    id = entry.id, center = collider.Center, radius = collider.Radius, layerMask = entry.layerMask,
+                _hitSnapshots[hitWrite++] = new HitSnapshot {
+                    id = entry.id,
+                    layerMask = entry.layerMask,
+                    shapeType = HitShapeType.Sphere,
+                    center = collider.Center,
+                    radius = collider.Radius,
+                    rotation = default,
+                    halfExtents = default
+                };
+            }
+
+            for (var i = 0; i < _boxHitEntries.Count; i++) {
+                var entry = _boxHitEntries[i];
+                var collider = entry.collider;
+                _hitSnapshots[hitWrite++] = new HitSnapshot {
+                    id = entry.id,
+                    layerMask = entry.layerMask,
+                    shapeType = HitShapeType.Box,
+                    center = collider.Center,
+                    radius = 0.0f,
+                    rotation = collider.Rotation,
+                    halfExtents = collider.HalfExtents
                 };
             }
 
@@ -277,27 +344,35 @@ namespace SampleEngine {
                 var collider = entry.collider;
                 _receiveSnapshots[i] = new ReceiveSnapshot {
                     id = entry.id,
-                    bottom = collider.Bottom,
                     radius = collider.Radius,
-                    height = collider.Height,
+                    start = collider.Start,
+                    end = collider.End,
                     layerMask = entry.layerMask,
                 };
             }
 
             // Gridで候補ペア作成
             _hitGrid.Clear();
-            for (var hitIndex = 0; hitIndex < _sphereHitEntries.Count; hitIndex++) {
+            for (var hitIndex = 0; hitIndex < hitWrite; hitIndex++) {
                 var hitSnapshot = _hitSnapshots[hitIndex];
-                _hitGrid.UpsertCircleXZ(hitIndex, hitSnapshot.center, hitSnapshot.radius);
+                switch (hitSnapshot.shapeType) {
+                    case HitShapeType.Sphere:
+                        _hitGrid.UpsertCircleXZ(hitIndex, hitSnapshot.center, hitSnapshot.radius);
+                        break;
+                    case HitShapeType.Box:
+                        _hitGrid.UpsertObbXZ(hitIndex, hitSnapshot.center, hitSnapshot.rotation, hitSnapshot.halfExtents);
+                        break;
+                }
             }
 
             var pairCount = 0;
             for (var receiveIndex = 0; receiveIndex < _receiveEntries.Count; receiveIndex++) {
                 var receiveSnapshot = _receiveSnapshots[receiveIndex];
-                var queryCenter = receiveSnapshot.bottom;
+                var queryStart = receiveSnapshot.start;
+                var queryEnd = receiveSnapshot.end;
                 var queryRadius = receiveSnapshot.radius;
 
-                _hitGrid.QueryCircleXZ(queryCenter, queryRadius, _tmpCandidates);
+                _hitGrid.QueryCapsuleXZ(queryStart, queryEnd, queryRadius, _tmpCandidates);
 
                 for (var i = 0; i < _tmpCandidates.Count; i++) {
                     var hitIndex = _tmpCandidates[i];
@@ -318,6 +393,7 @@ namespace SampleEngine {
                 pairCount = pairCount,
                 hitFlags = _hitFlags,
                 contactPoints = _contactPoints,
+                contactNormals = _contactNormals,
             };
             var handle = job.Schedule(pairCount, 64);
             handle.Complete();
@@ -337,8 +413,9 @@ namespace SampleEngine {
                 _currentPariKeys.Add(key);
 
                 if (listener != null) {
-                    var contact = (Vector3)_contactPoints[i];
-                    var evt = new CollisionEvent(hitId, receiveId, contact);
+                    var contactPoint = (Vector3)_contactPoints[i];
+                    var contactNormal = (Vector3)_contactNormals[i];
+                    var evt = new CollisionEvent(hitId, receiveId, contactPoint, contactNormal);
                     if (_prevPariKeys.Contains(key)) {
                         listener.OnCollisionStay(evt);
                     }
@@ -364,7 +441,7 @@ namespace SampleEngine {
                 }
 
                 if (listener != null) {
-                    var evt = new CollisionEvent(hitId, receiveId, default);
+                    var evt = new CollisionEvent(hitId, receiveId, default, default);
                     listener.OnCollisionExit(evt);
                 }
             }
@@ -374,20 +451,25 @@ namespace SampleEngine {
             foreach (var key in _currentPariKeys) {
                 _prevPariKeys.Add(key);
             }
+            
+            // デバッグ情報のコミット
+            CommitDebugFrame(pairCount);
         }
 
         /// <summary>
         /// 管理対象のNativeArrayの確保
         /// </summary>
         private void EnsureNativeArrays() {
-            Ensure(ref _hitSnapshots, _sphereHitEntries.Count);
+            var totalHitSnapshotCount = _sphereHitEntries.Count + _boxHitEntries.Count;
+            Ensure(ref _hitSnapshots, totalHitSnapshotCount);
             Ensure(ref _receiveSnapshots, _receiveEntries.Count);
 
             // Pairsは適当の初期容量を与える
             if (!_candidatePairs.IsCreated) {
-                _candidatePairs = new NativeArray<CandidatePair>(Mathf.Max(256, _sphereHitEntries.Count * Mathf.Max(1, _receiveEntries.Count)), Allocator.Persistent);
+                _candidatePairs = new NativeArray<CandidatePair>(Mathf.Max(256, totalHitSnapshotCount * Mathf.Max(1, _receiveEntries.Count)), Allocator.Persistent);
                 _hitFlags = new NativeArray<int>(_candidatePairs.Length, Allocator.Persistent);
                 _contactPoints = new NativeArray<float3>(_candidatePairs.Length, Allocator.Persistent);
+                _contactNormals = new NativeArray<float3>(_candidatePairs.Length, Allocator.Persistent);
             }
         }
 
@@ -400,16 +482,19 @@ namespace SampleEngine {
             var newPairs = new NativeArray<CandidatePair>(newSize, Allocator.Persistent);
             var newFlags = new NativeArray<int>(newSize, Allocator.Persistent);
             var newPoints = new NativeArray<float3>(newSize, Allocator.Persistent);
+            var newNormals = new NativeArray<float3>(newSize, Allocator.Persistent);
 
             NativeArray<CandidatePair>.Copy(_candidatePairs, newPairs, _candidatePairs.Length);
 
             _candidatePairs.Dispose();
             _hitFlags.Dispose();
             _contactPoints.Dispose();
+            _contactNormals.Dispose();
 
             _candidatePairs = newPairs;
             _hitFlags = newFlags;
             _contactPoints = newPoints;
+            _contactNormals = newNormals;
         }
 
         /// <summary>
@@ -417,14 +502,6 @@ namespace SampleEngine {
         /// </summary>
         private static void Ensure<T>(ref NativeArray<T> array, int length)
             where T : struct {
-            if (length <= 0) {
-                if (!array.IsCreated) {
-                    array = new NativeArray<T>(0, Allocator.Persistent);
-                }
-
-                return;
-            }
-
             if (!array.IsCreated || array.Length != length) {
                 if (array.IsCreated) {
                     array.Dispose();
@@ -432,77 +509,6 @@ namespace SampleEngine {
 
                 array = new NativeArray<T>(length, Allocator.Persistent);
             }
-        }
-
-        /// <summary>
-        /// 当たり判定計算
-        /// </summary>
-        /// <param name="hit">Sphereコリジョン</param>
-        /// <param name="receive">Capsuleコリジョン</param>
-        /// <param name="receiveContactPoint">衝突している場合のCapsule表面上の接触点</param>
-        /// <returns>衝突している場合 true</returns>
-        private static bool TryGetReceiveContactPoint(HitSnapshot hit,　ReceiveSnapshot receive, out float3 receiveContactPoint) {
-            var sphereCenter = hit.center;
-            var sphereRadius = hit.radius;
-
-            var capsuleBottom = receive.bottom;
-            var capsuleRadius = receive.radius;
-            var capsuleHeight = receive.height;
-
-            receiveContactPoint = default;
-
-            if (capsuleRadius < 0.0f || sphereRadius < 0.0f || capsuleHeight <= 0.0f) {
-                return false;
-            }
-
-            // カプセル軸（Y方向）: xz は Bottom の xz 固定、y は [bottom.y, bottom.y + h]
-            var axisX = capsuleBottom.x;
-            var axisZ = capsuleBottom.z;
-
-            // 「半球中心」の有効範囲に y をクランプする
-            // カプセルの球中心は bottom+radius ～ bottom+(h-radius)
-            var minY = capsuleBottom.y + capsuleRadius;
-            var maxY = capsuleBottom.y + math.max(capsuleRadius, capsuleHeight - capsuleRadius);
-
-            // h < 2r の場合は「球が重なったカプセル」になり得るので、中心区間を潰して対応
-            // その場合 minY > maxY になるので、中央値に寄せる
-            if (minY > maxY) {
-                var mid = capsuleBottom.y + capsuleHeight * 0.5f;
-                minY = mid;
-                maxY = mid;
-            }
-
-            var clampedY = math.clamp(sphereCenter.y, minY, maxY);
-
-            // カプセル軸上最近点 Q（Sphere中心 S に最も近い軸上の点）
-            var q = new float3(axisX, clampedY, axisZ);
-
-            // 軸から Sphere中心までのベクトル
-            var v = sphereCenter - q;
-            var distSq = math.lengthsq(v);
-
-            var sumR = capsuleRadius + sphereRadius;
-            var sumRSq = sumR * sumR;
-
-            // 衝突判定（カプセルの「膨張半径」= cr に対して Sphere 半径 sr を足す）
-            if (distSq > sumRSq) {
-                return false;
-            }
-
-            // 衝突点（Receive 側=カプセル表面）
-            // 方向が定まらない（中心が軸上）場合は、X+ 方向に倒す（運用に合わせて変更可）
-            const float eps = 1e-8f;
-            float3 n;
-            if (distSq > eps) {
-                var invDist = 1.0f / math.rsqrt(distSq);
-                n = v * invDist; // Q->S の正規化（カプセル表面の外向き）
-            }
-            else {
-                n = new float3(1.0f, 0.0f, 0.0f);
-            }
-
-            receiveContactPoint = q + n * capsuleRadius;
-            return true;
         }
     }
 }
