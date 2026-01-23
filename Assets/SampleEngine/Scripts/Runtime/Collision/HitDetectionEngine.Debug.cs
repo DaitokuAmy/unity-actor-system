@@ -156,10 +156,6 @@ namespace SampleEngine {
         /// デバッグ描画を無効化
         /// </summary>
         public void DisableDebugView() {
-            if (_disposed) {
-                return;
-            }
-            
             if (!_debugEnabled) {
                 return;
             }
