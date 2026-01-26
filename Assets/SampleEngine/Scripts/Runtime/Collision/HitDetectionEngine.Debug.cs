@@ -139,7 +139,7 @@ namespace SampleEngine {
             if (_disposed) {
                 return;
             }
-            
+
             if (_debugEnabled) {
                 return;
             }
@@ -159,7 +159,7 @@ namespace SampleEngine {
             if (!_debugEnabled) {
                 return;
             }
-            
+
             _debugEnabled = false;
 
             if (_debugVisualizer != null) {

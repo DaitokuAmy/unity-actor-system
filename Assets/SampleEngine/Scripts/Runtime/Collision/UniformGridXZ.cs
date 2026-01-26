@@ -94,6 +94,23 @@ namespace SampleEngine {
         }
 
         /// <summary>
+        /// カプセル単位での登録
+        /// </summary>
+        public void UpsertCapsuleXZ(int id, Vector3 start, Vector3 end, float radius) {
+            if (radius < 0.0f) {
+                radius = 0.0f;
+            }
+
+            // CapsuleをXZに投影したAABB（線分の両端＋半径）
+            var minX = Mathf.Min(start.x, end.x) - radius;
+            var maxX = Mathf.Max(start.x, end.x) + radius;
+            var minZ = Mathf.Min(start.z, end.z) - radius;
+            var maxZ = Mathf.Max(start.z, end.z) + radius;
+
+            UpsertRect(id, minX, maxX, minZ, maxZ);
+        }
+
+        /// <summary>
         /// 矩形情報でのCell登録処理
         /// </summary>
         private void UpsertRect(int id, float minX, float maxX, float minZ, float maxZ) {

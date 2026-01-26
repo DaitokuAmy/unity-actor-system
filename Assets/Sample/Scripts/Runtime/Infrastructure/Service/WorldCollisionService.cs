@@ -46,54 +46,54 @@ namespace Sample.Infrastructure {
         }
 
         /// <inheritdoc/>
-        void ICollisionListener.OnCollisionEnter(in CollisionEvent evt) {
-            if (!_hidIdToActorIds.TryGetValue(evt.hitId, out var hitActorId)) {
+        void ICollisionListener.OnCollisionEnter(in HitEvent evt) {
+            if (!_hidIdToActorIds.TryGetValue(evt.HitId, out var hitActorId)) {
                 return;
             }
 
-            if (!_receiveIdToActorIds.TryGetValue(evt.receiveId, out var receiveActorId)) {
+            if (!_receiveIdToActorIds.TryGetValue(evt.ReceiveId, out var receiveActorId)) {
                 return;
             }
 
-            if (!_receiveIdToListeners.TryGetValue(evt.receiveId, out var listener)) {
+            if (!_receiveIdToListeners.TryGetValue(evt.ReceiveId, out var listener)) {
                 return;
             }
 
-            listener?.OnCollisionEnter(hitActorId, receiveActorId, evt.contactPoint, evt.contactNormal, evt.customData);
+            listener?.OnCollisionEnter(hitActorId, receiveActorId, evt.ContactPoint, evt.ContactNormal, evt.CustomData);
         }
 
         /// <inheritdoc/>
-        void ICollisionListener.OnCollisionStay(in CollisionEvent evt) {
-            if (!_hidIdToActorIds.TryGetValue(evt.hitId, out var hitActorId)) {
+        void ICollisionListener.OnCollisionStay(in HitEvent evt) {
+            if (!_hidIdToActorIds.TryGetValue(evt.HitId, out var hitActorId)) {
                 return;
             }
 
-            if (!_receiveIdToActorIds.TryGetValue(evt.receiveId, out var receiveActorId)) {
+            if (!_receiveIdToActorIds.TryGetValue(evt.ReceiveId, out var receiveActorId)) {
                 return;
             }
 
-            if (!_receiveIdToListeners.TryGetValue(evt.receiveId, out var listener)) {
+            if (!_receiveIdToListeners.TryGetValue(evt.ReceiveId, out var listener)) {
                 return;
             }
 
-            listener?.OnCollisionStay(hitActorId, receiveActorId, evt.contactPoint, evt.contactNormal, evt.customData);
+            listener?.OnCollisionStay(hitActorId, receiveActorId, evt.ContactPoint, evt.ContactNormal, evt.CustomData);
         }
 
         /// <inheritdoc/>
-        void ICollisionListener.OnCollisionExit(in CollisionEvent evt) {
-            if (!_hidIdToActorIds.TryGetValue(evt.hitId, out var hitActorId)) {
+        void ICollisionListener.OnCollisionExit(in HitEvent evt) {
+            if (!_hidIdToActorIds.TryGetValue(evt.HitId, out var hitActorId)) {
                 return;
             }
 
-            if (!_receiveIdToActorIds.TryGetValue(evt.receiveId, out var receiveActorId)) {
+            if (!_receiveIdToActorIds.TryGetValue(evt.ReceiveId, out var receiveActorId)) {
                 return;
             }
 
-            if (!_receiveIdToListeners.TryGetValue(evt.receiveId, out var listener)) {
+            if (!_receiveIdToListeners.TryGetValue(evt.ReceiveId, out var listener)) {
                 return;
             }
 
-            listener?.OnCollisionExit(hitActorId, receiveActorId, evt.customData);
+            listener?.OnCollisionExit(hitActorId, receiveActorId, evt.CustomData);
         }
 
         /// <inheritdoc/>

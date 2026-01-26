@@ -17,6 +17,7 @@ namespace SampleEngine {
         internal enum HitShapeType : byte {
             Sphere = 0,
             Box = 1,
+            Sweep = 2,
         }
 
         /// <summary>
@@ -26,11 +27,14 @@ namespace SampleEngine {
             public int Id;
             public int LayerMask;
             public HitShapeType ShapeType;
+            public int CustomDataIndex;
 
             public float3 Center;
             public float Radius;
             public quaternion Rotation;
             public float3 HalfExtents;
+            public float3 Start;
+            public float3 End;
         }
 
         /// <summary>
@@ -50,15 +54,6 @@ namespace SampleEngine {
         private struct CandidatePair {
             public int HitIndex;
             public int ReceiveIndex;
-        }
-
-        /// <summary>
-        /// 判定結果
-        /// </summary>
-        private struct HitResult {
-            public int HitIndex;
-            public int ReceiveIndex;
-            public float3 ContactPoint;
         }
 
         /// <summary>
@@ -121,6 +116,15 @@ namespace SampleEngine {
 
                         break;
                     }
+                    case HitShapeType.Sweep: {
+                        if (TryGetReceiveContactPoint_Sweep(hitSnapshot, receiveSnapshot, out var contactPoint, out var contactNormal)) {
+                            HitFlags[index] = 1;
+                            ContactPoints[index] = contactPoint;
+                            ContactNormals[index] = contactNormal;
+                        }
+
+                        break;
+                    }
                 }
             }
         }
@@ -151,12 +155,10 @@ namespace SampleEngine {
         private readonly struct PairKey : IEquatable<PairKey> {
             public readonly int HitId;
             public readonly int ReceiveId;
-            public readonly object CustomData;
 
-            public PairKey(int hitId, int receiveId, object customData) {
-                this.HitId = hitId;
-                this.ReceiveId = receiveId;
-                this.CustomData = customData;
+            public PairKey(int hitId, int receiveId) {
+                HitId = hitId;
+                ReceiveId = receiveId;
             }
 
             /// <inheritdoc/>
@@ -179,14 +181,14 @@ namespace SampleEngine {
 
         private readonly UniformGrid2D _hitGrid;
         private readonly List<HitEntry<ISphereHitCollider>> _sphereHitEntries = new();
+        private readonly List<HitEntry<ISweepHitCollider>> _sweepHitEntries = new();
         private readonly List<HitEntry<IBoxHitCollider>> _boxHitEntries = new();
         private readonly List<ReceiveEntry> _receiveEntries = new();
         private readonly List<object> _customDataList = new();
-
-        private readonly HashSet<PairKey> _prevPariKeys = new();
-        private readonly HashSet<PairKey> _currentPariKeys = new();
-
         private readonly List<int> _tmpCandidates = new(256);
+
+        private Dictionary<PairKey, object> _prevPairKeys = new();
+        private Dictionary<PairKey, object> _currentPairKeys = new();
 
         private NativeArray<HitSnapshot> _hitSnapshots;
         private NativeArray<ReceiveSnapshot> _receiveSnapshots;
@@ -216,7 +218,7 @@ namespace SampleEngine {
             }
 
             _disposed = true;
-            
+
             // Debug情報の削除
             DisableDebugView();
 
@@ -244,10 +246,18 @@ namespace SampleEngine {
             if (_contactNormals.IsCreated) {
                 _contactNormals.Dispose();
             }
+            
+            // ワーク領域クリア
+            _prevPairKeys.Clear();
+            _currentPairKeys.Clear();
+            _customDataList.Clear();
+            _tmpCandidates.Clear();
 
             // コリジョン情報をクリア
             _hitGrid.Clear();
             _sphereHitEntries.Clear();
+            _boxHitEntries.Clear();
+            _sweepHitEntries.Clear();
             _receiveEntries.Clear();
         }
 
@@ -259,7 +269,7 @@ namespace SampleEngine {
         /// <param name="customData">ヒット検出時に届くカスタムデータ</param>
         public int RegisterHit(ISphereHitCollider collider, int layerMask = ~0, object customData = null) {
             var id = _nextHitId++;
-            _sphereHitEntries.Add(new HitEntry<ISphereHitCollider> { Id = id, Collider = collider, LayerMask = layerMask, CustomData = customData  });
+            _sphereHitEntries.Add(new HitEntry<ISphereHitCollider> { Id = id, Collider = collider, LayerMask = layerMask, CustomData = customData });
             return id;
         }
 
@@ -272,6 +282,18 @@ namespace SampleEngine {
         public int RegisterHit(IBoxHitCollider collider, int layerMask = ~0, object customData = null) {
             var id = _nextHitId++;
             _boxHitEntries.Add(new HitEntry<IBoxHitCollider> { Id = id, Collider = collider, LayerMask = layerMask, CustomData = customData });
+            return id;
+        }
+
+        /// <summary>
+        /// スイープヒットコリジョン登録
+        /// </summary>
+        /// <param name="collider">ヒットコリジョン情報</param>
+        /// <param name="layerMask">判定レイヤーマスク</param>
+        /// <param name="customData">ヒット検出時に届くカスタムデータ</param>
+        public int RegisterHit(ISweepHitCollider collider, int layerMask = ~0, object customData = null) {
+            var id = _nextHitId++;
+            _sweepHitEntries.Add(new HitEntry<ISweepHitCollider> { Id = id, Collider = collider, LayerMask = layerMask, CustomData = customData });
             return id;
         }
 
@@ -295,14 +317,21 @@ namespace SampleEngine {
             for (var i = _sphereHitEntries.Count - 1; i >= 0; i--) {
                 if (_sphereHitEntries[i].Id == id) {
                     _sphereHitEntries.RemoveAt(i);
-                    break;
+                    return;
                 }
             }
 
             for (var i = _boxHitEntries.Count - 1; i >= 0; i--) {
                 if (_boxHitEntries[i].Id == id) {
                     _boxHitEntries.RemoveAt(i);
-                    break;
+                    return;
+                }
+            }
+
+            for (var i = _sweepHitEntries.Count - 1; i >= 0; i--) {
+                if (_sweepHitEntries[i].Id == id) {
+                    _sweepHitEntries.RemoveAt(i);
+                    return;
                 }
             }
         }
@@ -337,10 +366,13 @@ namespace SampleEngine {
                     Id = entry.Id,
                     LayerMask = entry.LayerMask,
                     ShapeType = HitShapeType.Sphere,
+                    CustomDataIndex = _customDataList.Count - 1,
                     Center = collider.Center,
                     Radius = collider.Radius,
                     Rotation = default,
-                    HalfExtents = default
+                    HalfExtents = default,
+                    Start = default,
+                    End = default
                 };
             }
 
@@ -352,10 +384,31 @@ namespace SampleEngine {
                     Id = entry.Id,
                     LayerMask = entry.LayerMask,
                     ShapeType = HitShapeType.Box,
+                    CustomDataIndex = _customDataList.Count - 1,
                     Center = collider.Center,
                     Radius = 0.0f,
                     Rotation = collider.Rotation,
-                    HalfExtents = collider.HalfExtents
+                    HalfExtents = collider.HalfExtents,
+                    Start = default,
+                    End = default
+                };
+            }
+
+            for (var i = 0; i < _sweepHitEntries.Count; i++) {
+                var entry = _sweepHitEntries[i];
+                var collider = entry.Collider;
+                _customDataList.Add(entry.CustomData);
+                _hitSnapshots[hitWrite++] = new HitSnapshot {
+                    Id = entry.Id,
+                    LayerMask = entry.LayerMask,
+                    ShapeType = HitShapeType.Sweep,
+                    CustomDataIndex = _customDataList.Count - 1,
+                    Center = default,
+                    Radius = collider.Radius,
+                    Rotation = default,
+                    HalfExtents = default,
+                    Start = collider.Start,
+                    End = collider.End,
                 };
             }
 
@@ -382,6 +435,9 @@ namespace SampleEngine {
                     case HitShapeType.Box:
                         _hitGrid.UpsertObbXZ(hitIndex, hitSnapshot.Center, hitSnapshot.Rotation, hitSnapshot.HalfExtents);
                         break;
+                    case HitShapeType.Sweep:
+                        _hitGrid.UpsertCapsuleXZ(hitIndex, hitSnapshot.Start, hitSnapshot.End, hitSnapshot.Radius);
+                        break;
                 }
             }
 
@@ -405,39 +461,42 @@ namespace SampleEngine {
                 }
             }
 
-            // Jobを使った処理の実行
-            var job = new CheckHitJob {
-                HitSnapshots = _hitSnapshots,
-                ReceiveSnapshots = _receiveSnapshots,
-                CandidatePairs = _candidatePairs,
-                PairCount = pairCount,
-                HitFlags = _hitFlags,
-                ContactPoints = _contactPoints,
-                ContactNormals = _contactNormals,
-            };
-            var handle = job.Schedule(pairCount, 64);
-            handle.Complete();
+            if (pairCount > 0) {
+                // Jobを使った処理の実行
+                var job = new CheckHitJob {
+                    HitSnapshots = _hitSnapshots,
+                    ReceiveSnapshots = _receiveSnapshots,
+                    CandidatePairs = _candidatePairs,
+                    PairCount = pairCount,
+                    HitFlags = _hitFlags,
+                    ContactPoints = _contactPoints,
+                    ContactNormals = _contactNormals,
+                };
+                var handle = job.Schedule(pairCount, 64);
+                handle.Complete();
+            }
 
             // 通知処理
-            _currentPariKeys.Clear();
+            _currentPairKeys.Clear();
             for (var i = 0; i < pairCount; i++) {
                 if (_hitFlags[i] == 0) {
                     continue;
                 }
 
                 var pair = _candidatePairs[i];
-                var hitId = _hitSnapshots[pair.HitIndex].Id;
+                var hitSnapshot = _hitSnapshots[pair.HitIndex];
+                var hitId = hitSnapshot.Id;
                 var receiveId = _receiveSnapshots[pair.ReceiveIndex].Id;
                 var listener = _receiveEntries[pair.ReceiveIndex].Listener;
-                var customData = _customDataList[pair.HitIndex];
-                var key = new PairKey(hitId, receiveId, customData);
-                _currentPariKeys.Add(key);
+                var customData = _customDataList[hitSnapshot.CustomDataIndex];
+                var key = new PairKey(hitId, receiveId);
+                _currentPairKeys[key] = customData;
 
                 if (listener != null) {
                     var contactPoint = (Vector3)_contactPoints[i];
                     var contactNormal = (Vector3)_contactNormals[i];
-                    var evt = new CollisionEvent(hitId, receiveId, contactPoint, contactNormal, customData);
-                    if (_prevPariKeys.Contains(key)) {
+                    var evt = new HitEvent(hitId, receiveId, contactPoint, contactNormal, customData);
+                    if (_prevPairKeys.ContainsKey(key)) {
                         listener.OnCollisionStay(evt);
                     }
                     else {
@@ -446,8 +505,9 @@ namespace SampleEngine {
                 }
             }
 
-            foreach (var key in _prevPariKeys) {
-                if (_currentPariKeys.Contains(key)) {
+            foreach (var pair in _prevPairKeys) {
+                var key = pair.Key;
+                if (_currentPairKeys.ContainsKey(key)) {
                     continue;
                 }
 
@@ -462,18 +522,16 @@ namespace SampleEngine {
                 }
 
                 if (listener != null) {
-                    var customData = key.CustomData;
-                    var evt = new CollisionEvent(hitId, receiveId, default, default, customData);
+                    var customData = pair.Value;
+                    var evt = new HitEvent(hitId, receiveId, default, default, customData);
                     listener.OnCollisionExit(evt);
                 }
             }
 
             // ペア集合のスワップ
-            _prevPariKeys.Clear();
-            foreach (var key in _currentPariKeys) {
-                _prevPariKeys.Add(key);
-            }
-            
+            _prevPairKeys.Clear();
+            (_prevPairKeys, _currentPairKeys) = (_currentPairKeys, _prevPairKeys);
+
             // デバッグ情報のコミット
             CommitDebugFrame(pairCount);
         }
@@ -482,7 +540,7 @@ namespace SampleEngine {
         /// 管理対象のNativeArrayの確保
         /// </summary>
         private void EnsureNativeArrays() {
-            var totalHitSnapshotCount = _sphereHitEntries.Count + _boxHitEntries.Count;
+            var totalHitSnapshotCount = _sphereHitEntries.Count + _boxHitEntries.Count + _sweepHitEntries.Count;
             Ensure(ref _hitSnapshots, totalHitSnapshotCount);
             Ensure(ref _receiveSnapshots, _receiveEntries.Count);
 
