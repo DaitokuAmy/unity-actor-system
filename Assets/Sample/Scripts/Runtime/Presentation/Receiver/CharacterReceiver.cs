@@ -11,7 +11,7 @@ namespace Sample.Presentation {
     /// <summary>
     /// キャライベント監視用クラス
     /// </summary>
-    public class CharacterReceiver : IActorReceiver<int>, IWorldCollisionListener {
+    public class CharacterReceiver : IActorReceiver, IWorldCollisionListener {
         [Inject]
         private IWorldCollisionService _worldCollisionService;
         [Inject]
@@ -20,8 +20,8 @@ namespace Sample.Presentation {
         private CompositeDisposable _compositeDisposable;
         private int _receiveCollisionId;
 
-        /// <summary>オーナーアクター</summary>
-        protected Actor<int> Owner { get; private set; }
+        /// <summary>シグナル発行用ポート</summary>
+        protected IActorSignalInputPort SignalInputPort { get; private set; }
         /// <summary>モデル</summary>
         protected IReadOnlyCharacterModel Model { get; private set; }
         /// <summary>制御用のビュー</summary>
@@ -39,29 +39,29 @@ namespace Sample.Presentation {
         void IDisposable.Dispose() { }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Activate() {
+        void IActorInterface.Activate() {
             _compositeDisposable = new CompositeDisposable();
 
             // 受けコリジョン登録
             var receiveLayerMask = GetCollisionLayerMask(Model);
             var attackLayerMask = ~receiveLayerMask;
-            _receiveCollisionId = _worldCollisionService.RegisterReceive(Owner.Id, ActorView, receiveLayerMask, this);
+            _receiveCollisionId = _worldCollisionService.RegisterReceive(Model.Id, ActorView, receiveLayerMask, this);
 
             var sequenceController = ActorView.SequenceController;
             sequenceController.BindRangeEventHandler<LogRangeSequenceEvent, LogRangeSequenceEventHandler>()
                 .AddTo(_compositeDisposable);
             sequenceController.BindRangeEventHandler<CombableRangeSequenceEvent, CombableRangeSequenceEventHandler>(onInit: handler => {
-                    handler.Setup(Owner);
+                    handler.Setup(SignalInputPort);
                 })
                 .AddTo(_compositeDisposable);
             sequenceController.BindRangeEventHandler<AttackRangeSequenceEvent, AttackRangeSequenceEventHandler>(onInit: handler => {
-                    handler.Setup(_worldCollisionService, Owner.Id, ActorView.Body.Transform, attackLayerMask);
+                    handler.Setup(_worldCollisionService, Model.Id, ActorView.Body.Transform, attackLayerMask);
                 })
                 .AddTo(_compositeDisposable);
         }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Deactivate() {
+        void IActorInterface.Deactivate() {
             // 受けコリジョン登録解除
             _worldCollisionService.UnregisterReceive(_receiveCollisionId);
 
@@ -69,17 +69,17 @@ namespace Sample.Presentation {
         }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Attached(Actor<int> actor) {
-            Owner = actor;
+        void IActorReceiver.Attached(IActorSignalInputPort signalInputPort) {
+            SignalInputPort = signalInputPort;
         }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Detached() {
-            Owner = null;
+        void IActorReceiver.Detached() {
+            SignalInputPort = null;
         }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Update(float deltaTime) { }
+        void IActorInterface.Update(float deltaTime) { }
 
         /// <inheritdoc/>
         void IWorldCollisionListener.OnCollisionEnter(int hitActorId, int receiveActorId, Vector3 contactPoint, Vector3 contactNormal, object customData) {

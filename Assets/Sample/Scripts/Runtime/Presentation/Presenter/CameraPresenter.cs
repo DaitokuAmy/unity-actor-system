@@ -8,11 +8,9 @@ namespace Sample.Presentation {
     /// <summary>
     /// カメラ見た目反映用クラス
     /// </summary>
-    public class CameraPresenter : ICameraPresenter, IActorPresenter<int> {
+    public class CameraPresenter : ICameraPresenter, IActorPresenter {
         private IActorTransform _baseTargetTransform;
 
-        /// <summary>オーナーアクター</summary>
-        private Actor<int> Owner { get; set; }
         /// <summary>参照用のモデル</summary>
         private IReadOnlyCameraModel Model { get; }
         /// <summary>制御用のビュー</summary>
@@ -30,23 +28,13 @@ namespace Sample.Presentation {
         void IDisposable.Dispose() { }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Activate() { }
+        void IActorInterface.Activate() { }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Deactivate() { }
+        void IActorInterface.Deactivate() { }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Attached(Actor<int> actor) {
-            Owner = actor;
-        }
-
-        /// <inheritdoc/>
-        void IActorInterface<int>.Detached() {
-            Owner = null;
-        }
-
-        /// <inheritdoc/>
-        void IActorInterface<int>.Update(float deltaTime) {
+        void IActorInterface.Update(float deltaTime) {
             // カメラ情報の反映
             if (_baseTargetTransform != null) {
                 var position = _baseTargetTransform.Position;

@@ -1,5 +1,3 @@
-using System;
-
 namespace UnityActorSystem {
     /// <summary>
     /// ActorBufferに詰め込むクラス用のインターフェース

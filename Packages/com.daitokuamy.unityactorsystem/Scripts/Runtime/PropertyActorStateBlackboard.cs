@@ -9,6 +9,7 @@ namespace UnityActorSystem {
         private readonly Dictionary<TKey, int> _intValues = new();
         private readonly Dictionary<TKey, string> _stringValues = new();
         private readonly Dictionary<TKey, bool> _boolValues = new();
+        private readonly Dictionary<TKey, object> _objectValues = new();
 
         /// <summary>
         /// 小数設定
@@ -39,6 +40,13 @@ namespace UnityActorSystem {
         }
 
         /// <summary>
+        /// オブジェクト値設定
+        /// </summary>
+        public void SetObject(TKey key, object value) {
+            _objectValues[key] = value;
+        }
+
+        /// <summary>
         /// 小数取得
         /// </summary>
         public float GetFloat(TKey key, float defaultValue = 0.0f) {
@@ -64,6 +72,13 @@ namespace UnityActorSystem {
         /// </summary>
         public bool GetBool(TKey key, bool defaultValue = false) {
             return _boolValues.GetValueOrDefault(key, defaultValue);
+        }
+        
+        /// <summary>
+        /// オブジェクト値取得
+        /// </summary>
+        public object GetObject(TKey key, object defaultValue = null) {
+            return _objectValues.GetValueOrDefault(key, defaultValue);
         }
     }
 }

@@ -45,7 +45,7 @@ namespace Sample.Lifecycle {
             var controller = new InputCharacterController();
             _objectResolver.Inject(controller);
             actor.SetController(controller);
-            var presenter = new CharacterPresenter(view);
+            var presenter = new CharacterPresenter(model, view);
             _objectResolver.Inject(presenter);
             actor.SetPresenter(presenter);
             var receiver = new CharacterReceiver(model, view);
@@ -69,7 +69,7 @@ namespace Sample.Lifecycle {
             var controller = new AICharacterController();
             _objectResolver.Inject(controller);
             actor.SetController(controller);
-            var presenter = new CharacterPresenter(view);
+            var presenter = new CharacterPresenter(model, view);
             _objectResolver.Inject(presenter);
             actor.SetPresenter(presenter);
             var receiver = new CharacterReceiver(model, view);

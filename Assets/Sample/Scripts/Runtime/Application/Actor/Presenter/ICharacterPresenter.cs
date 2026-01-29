@@ -8,7 +8,7 @@ namespace Sample.Application {
     /// <summary>
     /// キャラ見た目反映用インターフェース
     /// </summary>
-    public interface ICharacterPresenter : IActorTransform, IActorPresenter<int> {
+    public interface ICharacterPresenter : IActorTransform, IActorPresenter {
         /// <summary>正面方向の角度</summary>
         float ForwardAngleY { get; }
         

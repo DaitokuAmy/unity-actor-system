@@ -1,5 +1,3 @@
-using System;
-
 namespace UnityActorSystem {
     /// <summary>
     /// アクター用のコマンド(操作情報)基底

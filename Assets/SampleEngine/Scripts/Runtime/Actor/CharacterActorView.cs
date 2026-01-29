@@ -13,7 +13,7 @@ namespace Sample.Presentation {
     /// <summary>
     /// キャラ制御用ビュー
     /// </summary>
-    public class CharacterActorView : IActorView<int>, IReceiveCollider {
+    public class CharacterActorView : IActorView, IReceiveCollider {
         private static readonly int SpeedXPropId = Animator.StringToHash("speed.x");
         private static readonly int SpeedZPropId = Animator.StringToHash("speed.z");
         private static readonly int DirectionXPropId = Animator.StringToHash("direction.x");
@@ -102,27 +102,21 @@ namespace Sample.Presentation {
         }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Activate() {
+        void IActorInterface.Activate() {
             _body.GameObject.SetActive(true);
 
             _motionBodyComponent.Play(_data.BaseController);
         }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Deactivate() {
+        void IActorInterface.Deactivate() {
             _sequenceController.StopAll();
             _body.GameObject.SetActive(false);
         }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Attached(Actor<int> actor) { }
-
-        /// <inheritdoc/>
-        void IActorInterface<int>.Detached() { }
-
-        /// <inheritdoc/>
         // ReSharper disable once Unity.IncorrectMethodSignature
-        void IActorInterface<int>.Update(float deltaTime) {
+        void IActorInterface.Update(float deltaTime) {
             // AnimatorProperty更新
             UpdateAnimatorProperties(deltaTime);
 

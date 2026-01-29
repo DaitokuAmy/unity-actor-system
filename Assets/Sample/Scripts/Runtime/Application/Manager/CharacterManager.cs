@@ -42,7 +42,7 @@ namespace Sample.Application {
             var actor = _actorManager.CreateActor(actorId);
             var master = _tableAssetStore.FindPlayerById(masterId);
             var model = new PlayerModel();
-            model.SetMaster(master);
+            model.Setup(actorId, master);
             actor.SetModel(model);
 
             await _actorFactory.CreatePlayerAsync(actor, model, ct);
@@ -67,7 +67,7 @@ namespace Sample.Application {
             var actor = _actorManager.CreateActor(actorId);
             var master = _tableAssetStore.FindEnemyById(masterId);
             var model = new EnemyModel();
-            model.SetMaster(master);
+            model.Setup(actorId, master);
             actor.SetModel(model);
 
             await _actorFactory.CreateEnemyAsync(actor, model, ct);

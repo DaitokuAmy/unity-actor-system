@@ -7,25 +7,25 @@ namespace Sample.Presentation {
     /// <summary>
     /// アクター操作用クラス基底
     /// </summary>
-    public abstract class ActorController : IActorController<int> {
+    public abstract class ActorController : IActorController {
         private CompositeDisposable _compositeDisposable;
         private CancellationTokenSource _cancellationTokenSource;
 
-        /// <summary>オーナーアクター</summary>
-        protected Actor<int> Owner { get; private set; }
+        /// <summary>コマンド発行用ポート</summary>
+        protected IActorCommandInputPort CommandInputPort { get; private set; }
 
         /// <inheritdoc/>
         void IDisposable.Dispose() { }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Activate() {
+        void IActorInterface.Activate() {
             _compositeDisposable = new CompositeDisposable();
             _cancellationTokenSource = new CancellationTokenSource();
             Activate(_compositeDisposable, _cancellationTokenSource.Token);
         }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Deactivate() {
+        void IActorInterface.Deactivate() {
             Deactivate();
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource.Dispose();
@@ -33,17 +33,17 @@ namespace Sample.Presentation {
         }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Attached(Actor<int> actor) {
-            Owner = actor;
+        void IActorController.Attached(IActorCommandInputPort commandInputPort) {
+            CommandInputPort = commandInputPort;
         }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Detached() {
-            Owner = null;
+        void IActorController.Detached() {
+            CommandInputPort = null;
         }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Update(float deltaTime) {
+        void IActorInterface.Update(float deltaTime) {
             Update(deltaTime);
         }
 

@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Sample.Application;
+using Sample.Core;
 using UnityActorSystem;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -12,7 +13,7 @@ namespace Sample.Presentation {
     /// </summary>
     public class CharacterPresenter : ICharacterPresenter {
         /// <summary>所有者Id</summary>
-        int IActorTransform.OwnerId => Owner.Id;
+        int IActorTransform.OwnerId => Model.Id;
         /// <inheritdoc/>
         Vector3 IActorTransform.Position => ActorView.Body.Position;
         /// <inheritdoc/>
@@ -20,15 +21,16 @@ namespace Sample.Presentation {
         /// <inheritdoc/>
         float ICharacterPresenter.ForwardAngleY => ActorView.Body.Transform.eulerAngles.y;
 
-        /// <summary>オーナーアクター</summary>
-        protected Actor<int> Owner { get; private set; }
+        /// <summary>モデル</summary>
+        protected IReadOnlyCharacterModel Model { get; }
         /// <summary>制御用のビュー</summary>
         protected CharacterActorView ActorView { get; }
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public CharacterPresenter(CharacterActorView actorView) {
+        public CharacterPresenter(IReadOnlyCharacterModel model, CharacterActorView actorView) {
+            Model = model;
             ActorView = actorView;
         }
 
@@ -36,23 +38,13 @@ namespace Sample.Presentation {
         void IDisposable.Dispose() { }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Activate() { }
+        void IActorInterface.Activate() { }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Deactivate() { }
+        void IActorInterface.Deactivate() { }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Attached(Actor<int> actor) {
-            Owner = actor;
-        }
-
-        /// <inheritdoc/>
-        void IActorInterface<int>.Detached() {
-            Owner = null;
-        }
-
-        /// <inheritdoc/>
-        void IActorInterface<int>.Update(float deltaTime) { }
+        void IActorInterface.Update(float deltaTime) { }
 
         /// <inheritdoc/>
         void ICharacterPresenter.ChangeIdle() {

@@ -8,7 +8,7 @@ namespace Sample.Presentation {
     /// <summary>
     /// キャラ制御用ビュー
     /// </summary>
-    public class CameraActorView : IActorView<int> {
+    public class CameraActorView : IActorView {
         private readonly Body _body;
         private readonly LocatorBodyComponent _locatorBodyComponent;
         private readonly Transform _targetPoint;
@@ -31,24 +31,18 @@ namespace Sample.Presentation {
         }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Activate() {
+        void IActorInterface.Activate() {
             _body.GameObject.SetActive(true);
         }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Deactivate() {
+        void IActorInterface.Deactivate() {
             _body.GameObject.SetActive(false);
         }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Attached(Actor<int> actor) { }
-
-        /// <inheritdoc/>
-        void IActorInterface<int>.Detached() { }
-
-        /// <inheritdoc/>
         // ReSharper disable once Unity.IncorrectMethodSignature
-        void IActorInterface<int>.Update(float deltaTime) {
+        void IActorInterface.Update(float deltaTime) {
         }
 
         /// <summary>

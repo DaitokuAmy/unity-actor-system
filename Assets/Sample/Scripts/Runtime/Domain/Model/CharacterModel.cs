@@ -6,7 +6,9 @@ namespace Sample.Domain {
     /// <summary>
     /// キャラ用のドメインモデル
     /// </summary>
-    public abstract class CharacterModel : IActorModel<int>, IReadOnlyCharacterModel {
+    public abstract class CharacterModel : IActorModel, IReadOnlyCharacterModel {
+        /// <inheritdoc/>
+        public int Id { get; private set; }
         /// <inheritdoc/>
         public ICharacterMaster Master { get; private set; }
         
@@ -15,29 +17,22 @@ namespace Sample.Domain {
         }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Activate() {
+        void IActorInterface.Activate() {
         }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Deactivate() {
+        void IActorInterface.Deactivate() {
         }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Attached(Actor<int> actor) {
+        void IActorInterface.Update(float deltaTime) {
         }
 
-        /// <inheritdoc/>
-        void IActorInterface<int>.Detached() {
-        }
-
-        /// <inheritdoc/>
-        void IActorInterface<int>.Update(float deltaTime) {
-        }
-        
         /// <summary>
-        /// マスターの設定
+        /// セットアップ処理
         /// </summary>
-        public void SetMaster(ICharacterMaster master) {
+        protected void SetupInternal(int id, ICharacterMaster master) {
+            Id = id;
             Master = master;
         }
     }

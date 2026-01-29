@@ -18,9 +18,9 @@ namespace Sample.Presentation {
             
             // 移動反映
             if (_moveVector.sqrMagnitude > 0.0f) {
-                var command = Owner.CreateCommand<CharacterCommands.Move>();
+                var command = CommandInputPort.CreateCommand<CharacterCommands.Move>();
                 command.Set(_moveVector.x, _moveVector.y);
-                Owner.AddCommand(command);;
+                CommandInputPort.AddCommand(command);;
             }
         }
 

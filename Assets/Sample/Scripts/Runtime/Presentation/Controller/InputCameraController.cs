@@ -20,8 +20,8 @@ namespace Sample.Presentation {
             // カメラリセット操作
             _inputDevice.ResetCameraSubject
                 .Subscribe(_ => {
-                    var command = Owner.CreateCommand<CameraCommands.ResetAngle>();
-                    Owner.AddCommand(command);
+                    var command = CommandInputPort.CreateCommand<CameraCommands.ResetAngle>();
+                    CommandInputPort.AddCommand(command);
                 })
                 .AddTo(compositeDisposable);
         }
@@ -33,9 +33,9 @@ namespace Sample.Presentation {
             // 回転操作
             var lookDir = _inputDevice.LookDir;
             if (lookDir.sqrMagnitude > float.Epsilon) {
-                var command = Owner.CreateCommand<CameraCommands.Rotate>();
+                var command = CommandInputPort.CreateCommand<CameraCommands.Rotate>();
                 command.Set(lookDir.y * -0.1f, lookDir.x * 0.1f);
-                Owner.AddCommand(command);
+                CommandInputPort.AddCommand(command);
             }
         }
     }

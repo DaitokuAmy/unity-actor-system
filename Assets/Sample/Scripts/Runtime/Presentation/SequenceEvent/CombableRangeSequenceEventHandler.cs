@@ -8,18 +8,18 @@ namespace Sample.Presentation {
     /// ハンドラ
     /// </summary>
     public sealed class CombableRangeSequenceEventHandler : RangeSequenceEventHandler<CombableRangeSequenceEvent> {
-        private Actor<int> _owner;
+        private IActorSignalInputPort _signalInputPort;
 
         /// <inheritdoc/>
         protected override void OnEnter(CombableRangeSequenceEvent sequenceEvent) {
-            var signal = _owner.CreateSignal<CharacterSignals.BeginCombable>();
-            _owner.AddSignal(signal);
+            var signal = _signalInputPort.CreateSignal<CharacterSignals.BeginCombable>();
+            _signalInputPort.AddSignal(signal);
         }
 
         /// <inheritdoc/>
         protected override void OnExit(CombableRangeSequenceEvent sequenceEvent) {
-            var signal = _owner.CreateSignal<CharacterSignals.EndCombable>();
-            _owner.AddSignal(signal);
+            var signal = _signalInputPort.CreateSignal<CharacterSignals.EndCombable>();
+            _signalInputPort.AddSignal(signal);
         }
 
         /// <inheritdoc/>
@@ -30,8 +30,8 @@ namespace Sample.Presentation {
         /// <summary>
         /// 情報セットアップ
         /// </summary>
-        public void Setup(Actor<int> owner) {
-            _owner = owner;
+        public void Setup(IActorSignalInputPort signalInputPort) {
+            _signalInputPort = signalInputPort;
         }
     }
 }

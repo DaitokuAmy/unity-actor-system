@@ -20,16 +20,16 @@ namespace Sample.Presentation {
             // 攻撃入力
             _inputDevice.AttackSubject
                 .Subscribe(_ => {
-                    var command = Owner.CreateCommand<CharacterCommands.Attack>();
-                    Owner.AddCommand(command);
+                    var command = CommandInputPort.CreateCommand<CharacterCommands.Attack>();
+                    CommandInputPort.AddCommand(command);
                 })
                 .AddTo(compositeDisposable);
 
             // ジャンプ入力
             _inputDevice.JumpSubject
                 .Subscribe(_ => {
-                    var command = Owner.CreateCommand<CharacterCommands.Jump>();
-                    Owner.AddCommand(command);
+                    var command = CommandInputPort.CreateCommand<CharacterCommands.Jump>();
+                    CommandInputPort.AddCommand(command);
                 })
                 .AddTo(compositeDisposable);
         }
@@ -42,9 +42,9 @@ namespace Sample.Presentation {
             var moveDir = _inputDevice.MoveDir;
             if (moveDir.sqrMagnitude > float.Epsilon) {
                 moveDir = _cameraService.TransformCameraDirection(moveDir.x, moveDir.y);
-                var command = Owner.CreateCommand<CharacterCommands.Move>();
+                var command = CommandInputPort.CreateCommand<CharacterCommands.Move>();
                 command.Set(moveDir.x, moveDir.y);
-                Owner.AddCommand(command);
+                CommandInputPort.AddCommand(command);
             }
         }
     }

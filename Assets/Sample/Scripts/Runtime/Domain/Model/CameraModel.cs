@@ -6,7 +6,7 @@ namespace Sample.Domain {
     /// <summary>
     /// カメラ用のドメインモデル
     /// </summary>
-    public sealed class CameraModel : IActorModel<int>, IReadOnlyCameraModel {
+    public sealed class CameraModel : IActorModel, IReadOnlyCameraModel {
         /// <inheritdoc/>
         public string PrefabAssetKey { get; private set; }
         /// <inheritdoc/>
@@ -21,23 +21,15 @@ namespace Sample.Domain {
         }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Activate() {
+        void IActorInterface.Activate() {
         }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Deactivate() {
+        void IActorInterface.Deactivate() {
         }
 
         /// <inheritdoc/>
-        void IActorInterface<int>.Attached(Actor<int> actor) {
-        }
-
-        /// <inheritdoc/>
-        void IActorInterface<int>.Detached() {
-        }
-
-        /// <inheritdoc/>
-        void IActorInterface<int>.Update(float deltaTime) {
+        void IActorInterface.Update(float deltaTime) {
         }
 
         /// <summary>
